@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-base=".">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>工具实验室 · Sean 的小街区</title>
+<meta name="description" content="三个纯前端小工具：涂鸦板、贪吃蛇、生命游戏。没有账号，没有网络请求，打开就能用。">
+<meta name="theme-color" content="#dce4f5">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2322304e'/%3E%3Ctext x='16' y='21.5' font-family='Helvetica,Arial,sans-serif' font-size='11' font-weight='800' fill='%23f7c948' text-anchor='middle'%3ESYB%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=ZCOOL+KuaiLe&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/illustrated.css">
+<script>
+  (function () {
+    document.documentElement.classList.add("js");
+    try {
+      var p = localStorage.getItem("palette");
+      if (p) document.documentElement.dataset.palette = p;
+    } catch (e) { /* 隐私模式下忽略 */ }
+  })();
+</script>
+</head>
+<body data-email="shaoyibang@163.com">
+<a class="skip-link" href="#main">跳到主要内容</a>
+
+<header class="ih">
+  <div class="wrap ih__in">
+    <a class="logo" href="index.html">
+      SYB
+      <span class="sr-only">Sean 的小街区，回到首页</span>
+    </a>
+
+    <div class="topbar__left">
+      <time class="clock" role="timer" aria-live="off" aria-label="当前北京时间" title="北京时间 · UTC+8">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.4V12l3.2 2"/></svg>
+        <b data-bj-time>--:--:--</b>
+        <span class="clock__zone">北京时间</span>
+      </time>
+
+      <p class="countdown" data-countdown hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="3"/><path d="M8 3v4M16 3v4M3.5 10.5h17"/></svg>
+        <span data-cd-text>—</span>
+      </p>
+    </div>
+
+    <button class="music" type="button" id="music-btn" aria-pressed="false" aria-label="打开背景音乐" title="背景音乐：关（点一下播放）">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 18V6l10-2v12"/>
+        <circle cx="6.5" cy="18" r="2.5"/>
+        <circle cx="16.5" cy="16" r="2.5"/>
+        <path class="music__slash" d="M4.5 4.5l15 15"/>
+      </svg>
+    </button>
+    <nav class="ih__nav" aria-label="主导航">
+      <a class="ih__link" href="blog/index.html">随笔</a>
+      <a class="ih__link is-active" href="tools.html" aria-current="page">工具</a>
+      <a class="ih__link" href="works.html">作品</a>
+    </nav>
+    <div class="topbar__right">
+      <div class="palette" role="radiogroup" aria-label="配色主题">
+        <button class="palette__dot" type="button" role="radio" aria-checked="true" data-palette-set="day" aria-label="白天" title="白天" style="background:#dce4f5"></button>
+        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="dusk" aria-label="黄昏" title="黄昏" style="background:#c98a86"></button>
+        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="night" aria-label="夜晚" title="夜晚" style="background:#131c44"></button>
+        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="print" aria-label="复古印刷" title="复古印刷" style="background:#f0ead9"></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="page" id="main">
+  <div class="wrap">
+
+    <div class="page-head">
+      <span class="eyebrow"><i aria-hidden="true"></i> Tools</span>
+      <h1>工具实验室</h1>
+      <p class="lede">三个纯前端小玩意，没有账号、没有网络请求、没打算变现。它们存在的唯一理由是：验证一个交互想法到底好不好玩。</p>
+    </div>
+
+    <section class="toy-grid">
+
+      <!-- 涂鸦板 -->
+      <article class="toy reveal" id="doodle">
+        <div class="toy__head">
+          <div>
+            <h2 class="tile__title">涂鸦板</h2>
+            <p>按住拖动就能画，画完可以直接导出 PNG。</p>
+          </div>
+          <span class="tag">Canvas 2D</span>
+        </div>
+        <div class="toy__stage">
+          <canvas id="doodle-canvas" width="1000" height="560" role="img" aria-label="涂鸦画布，可用指针在上面绘制"></canvas>
+        </div>
+        <div class="toy__bar">
+          <button class="swatch" type="button" data-doodle-color="#1d1d1f" aria-pressed="true" aria-label="墨黑" style="background:#1d1d1f"></button>
+          <button class="swatch" type="button" data-doodle-color="#2563eb" aria-pressed="false" aria-label="电光蓝" style="background:#2563eb"></button>
+          <button class="swatch" type="button" data-doodle-color="#ec4899" aria-pressed="false" aria-label="品红" style="background:#ec4899"></button>
+          <button class="swatch" type="button" data-doodle-color="#22c55e" aria-pressed="false" aria-label="草绿" style="background:#22c55e"></button>
+          <label class="muted" style="font-size:.82rem;display:flex;align-items:center;gap:8px">
+            笔粗 <span class="mono" data-doodle-size-out>8px</span>
+            <input class="range" type="range" min="2" max="40" value="8" step="1" data-doodle-size aria-label="笔刷粗细">
+          </label>
+          <button class="btn btn--sm" type="button" data-doodle-clear>清空</button>
+          <button class="btn btn--sm btn--primary" type="button" data-doodle-save>导出 PNG</button>
+        </div>
+      </article>
+
+      <!-- 贪吃蛇 -->
+      <article class="toy reveal" id="snake">
+        <div class="toy__head">
+          <div>
+            <h2 class="tile__title">贪吃蛇</h2>
+            <p>先点一下画面，然后用方向键或 WASD。手机用下面的方向键。</p>
+          </div>
+          <span class="tag">键盘可玩</span>
+        </div>
+        <div class="toy__stage">
+          <canvas id="snake-canvas" width="960" height="640" tabindex="0" role="application"
+                  aria-label="贪吃蛇游戏画布，聚焦后使用方向键控制" style="cursor:pointer"></canvas>
+        </div>
+        <div class="toy__bar">
+          <button class="btn btn--sm btn--primary" type="button" data-snake-toggle>开始</button>
+          <button class="btn btn--sm" type="button" data-snake-reset>重开</button>
+          <div class="pad-grid" aria-label="方向控制">
+            <button class="pad-up" type="button" data-snake-dir="up" aria-label="向上">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m6 11 6-6 6 6"/></svg>
+            </button>
+            <button class="pad-left" type="button" data-snake-dir="left" aria-label="向左">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
+            </button>
+            <button class="pad-down" type="button" data-snake-dir="down" aria-label="向下">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m6 13 6 6 6-6"/></svg>
+            </button>
+            <button class="pad-right" type="button" data-snake-dir="right" aria-label="向右">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+            </button>
+          </div>
+          <span class="toy__stat"><span data-snake-score>得分 0</span> · <span data-snake-best>最高 0</span></span>
+        </div>
+      </article>
+
+      <!-- 生命游戏 -->
+      <article class="toy reveal" id="life">
+        <div class="toy__head">
+          <div>
+            <h2 class="tile__title">生命游戏</h2>
+            <p>在网格上按住拖动可以画细胞，松手后按播放，看它自己长。</p>
+          </div>
+          <span class="tag">Conway</span>
+        </div>
+        <div class="toy__stage">
+          <canvas id="life-canvas" width="960" height="560" role="img"
+                  aria-label="康威生命游戏网格，可拖动绘制细胞"></canvas>
+        </div>
+        <div class="toy__bar">
+          <button class="btn btn--sm btn--primary" type="button" data-life-toggle>播放</button>
+          <button class="btn btn--sm" type="button" data-life-step>单步</button>
+          <button class="btn btn--sm" type="button" data-life-random>随机</button>
+          <button class="btn btn--sm" type="button" data-life-clear>清空</button>
+          <span class="toy__stat" data-life-stat>第 0 代 · 存活 0</span>
+        </div>
+      </article>
+
+    </section>
+
+    <footer class="footer">
+      <p>所有工具都是纯前端实现，断网也能用。</p>
+      <p class="mono">想做第四个？<a href="mailto:shaoyibang@163.com" style="color:var(--teal-dark)">告诉我</a> · <a href="index.html">← 回街区首页</a></p>
+    </footer>
+  </div>
+</main>
+
+<audio id="bgm" src="music.mp3" loop preload="none"></audio>
+<script src="assets/js/illustrated.js"></script>
+<script src="assets/js/tools.js"></script>
+</body>
+</html>

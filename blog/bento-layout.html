@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-base="..">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bento 网格为什么这么耐看 · Sean 的小街区</title>
+<meta name="description" content="Bento 布局同时解决了内容不等量、注意力不均匀和作者总想再塞一点这三个问题。聊聊跨度规则怎么定。">
+<meta name="theme-color" content="#dce4f5">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2322304e'/%3E%3Ctext x='16' y='21.5' font-family='Helvetica,Arial,sans-serif' font-size='11' font-weight='800' fill='%23f7c948' text-anchor='middle'%3ESYB%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=ZCOOL+KuaiLe&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/illustrated.css">
+<script>
+  (function () {
+    document.documentElement.classList.add("js");
+    try {
+      var p = localStorage.getItem("palette");
+      if (p) document.documentElement.dataset.palette = p;
+    } catch (e) { /* 隐私模式下忽略 */ }
+  })();
+</script>
+</head>
+<body data-email="shaoyibang@163.com">
+<a class="skip-link" href="#main">跳到主要内容</a>
+
+<header class="ih">
+  <div class="wrap ih__in">
+    <a class="logo" href="../index.html">
+      SYB
+      <span class="sr-only">Sean 的小街区，回到首页</span>
+    </a>
+
+    <div class="topbar__left">
+      <time class="clock" role="timer" aria-live="off" aria-label="当前北京时间" title="北京时间 · UTC+8">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.4V12l3.2 2"/></svg>
+        <b data-bj-time>--:--:--</b>
+        <span class="clock__zone">北京时间</span>
+      </time>
+
+      <p class="countdown" data-countdown hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="3"/><path d="M8 3v4M16 3v4M3.5 10.5h17"/></svg>
+        <span data-cd-text>—</span>
+      </p>
+    </div>
+
+    <button class="music" type="button" id="music-btn" aria-pressed="false" aria-label="打开背景音乐" title="背景音乐：关（点一下播放）">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 18V6l10-2v12"/>
+        <circle cx="6.5" cy="18" r="2.5"/>
+        <circle cx="16.5" cy="16" r="2.5"/>
+        <path class="music__slash" d="M4.5 4.5l15 15"/>
+      </svg>
+    </button>
+    <nav class="ih__nav" aria-label="主导航">
+      <a class="ih__link is-active" href="index.html" aria-current="page">随笔</a>
+      <a class="ih__link" href="../tools.html">工具</a>
+      <a class="ih__link" href="../works.html">作品</a>
+    </nav>
+    <div class="topbar__right">
+      <div class="palette" role="radiogroup" aria-label="配色主题">
+        <button class="palette__dot" type="button" role="radio" aria-checked="true" data-palette-set="day" aria-label="白天" title="白天" style="background:#dce4f5"></button>
+        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="dusk" aria-label="黄昏" title="黄昏" style="background:#c98a86"></button>
+        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="night" aria-label="夜晚" title="夜晚" style="background:#131c44"></button>
+        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="print" aria-label="复古印刷" title="复古印刷" style="background:#f0ead9"></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="page" id="main">
+  <div class="wrap">
+
+    <a class="back-link" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
+      返回文章列表
+    </a>
+
+    <div class="post-head">
+      <div class="card__meta" style="margin-bottom:14px">
+        <time datetime="2026-02-08">2026-02-08</time><span>·</span><span>8 分钟</span><span>·</span><span>布局 / CSS Grid</span>
+      </div>
+      <h1>Bento 网格为什么这么耐看</h1>
+      <p class="lede">它同时解决了三件事：内容不等量、注意力不均匀，以及作者总想再塞一点。这篇文章讲清楚跨度规则怎么定，以及怎么避免排出空洞。</p>
+    </div>
+
+    <article class="prose">
+      <p>我第一次被 Bento 布局打动，不是因为好看，而是因为它<b>替我做了决定</b>。传统栅格要求每个区块等宽等高，于是所有内容都被迫长成同一个形状；而真实的内容从来不是等量的——一段自我介绍和一句随机语录，凭什么占一样大的地方？</p>
+
+      <p>Bento 的做法是把"重要性"直接编码进面积：越重要的内容，占的格子越多。用户扫一眼就知道该先看哪里，不需要你用加粗、放大、红色来喊。</p>
+
+      <h2>一、先定列数，再定跨度</h2>
+
+      <p>我的经验是<strong>桌面 12 列、平板 6 列、手机 1 列</strong>。12 能被 2、3、4、6 整除，几乎所有常见组合都排得下；6 列是平板的安全值；手机端干脆放弃跨度，回归单列阅读。</p>
+
+      <p>关键约束只有一条：<b>每一行的跨度之和必须正好等于列数</b>。否则自动布局会在行尾留下空洞，或者在下一行错位，你就会忍不住加 <code>grid-auto-flow: dense</code>——而那会打乱 DOM 顺序与视觉顺序的对应，键盘用户按 Tab 时会在页面上跳来跳去。</p>
+
+      <pre><code>.bento {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-rows: 100px;
+  gap: 18px;
+}
+
+.tile--hero    { grid-column: span 6; grid-row: span 3; }
+.tile--portrait{ grid-column: span 3; grid-row: span 3; }
+.tile--now     { grid-column: span 3; grid-row: span 3; }
+/* 6 + 3 + 3 = 12，正好一行 */</code></pre>
+
+      <p>注意 <code>minmax(0, 1fr)</code>：写成 <code>1fr</code> 时，内容的最小宽度会把列撑开，一张长图或一行不换行的代码就能让整个网格溢出。加上 <code>minmax(0, …)</code> 才能真正压缩。</p>
+
+      <h2>二、固定行高，但只在大屏固定</h2>
+
+      <p>Bento 那种整齐的"硬边"来自统一的行高。但固定行高在窄屏是灾难：内容会溢出卡片，你只能靠 <code>overflow: hidden</code> 把字切掉。</p>
+
+      <p>我的处理是<b>移动端让行高自动、大屏才锁死</b>：</p>
+
+      <pre><code>.bento { grid-auto-rows: auto; }        /* 手机：内容说了算 */
+.tile  { grid-column: 1 / -1; }
+
+@media (min-width: 760px) {
+  .bento { grid-auto-rows: 96px; }        /* 平板起锁行高 */
+  .tile  { grid-column: span 6; }
+}</code></pre>
+
+      <p>锁定行高之后要还一笔技术债：<b>逐个体检每张卡片的内容高度</b>。做法很土但有效——把浏览器宽度拖到 1080px 临界点，看哪张卡片的文字被压到贴着下边缘。凡是贴边的，要么减少内容，要么给它多加一行。</p>
+
+      <h2>三、留白的分配比尺寸更重要</h2>
+
+      <p>Bento 看起来舒服，一半功劳在间距的一致性。我固定三档：卡片内边距 22px、卡片间距 18px、卡片圆角 24px。比例上圆角略大于内边距，视觉上会更"糯"。</p>
+
+      <p>另外一个小细节：<b>卡片内的元素用 <code>margin-top: auto</code> 把页脚推到底部</b>，而不是给每张卡片算高度。这样不同高度的卡片，页脚会在同一条基线上，整片网格立刻显得有秩序。</p>
+
+      <pre><code>.tile { display: flex; flex-direction: column; }
+.tile__foot { margin-top: auto; }</code></pre>
+
+      <h2>四、换来的代价</h2>
+
+      <p>Bento 不是免费的。它有三个真实成本：</p>
+
+      <ul>
+        <li><b>内容必须提前想清楚。</b>格子数量固定，意味着你不能"先随便排一下"。这其实是好事，但确实更费脑。</li>
+        <li><b>响应式规则会变多。</b>每个断点都要重新分配跨度，我现在是两套断点，再多就该考虑拆页面了。</li>
+        <li><b>Tab 顺序会被审视。</b>DOM 顺序必须等于视觉阅读顺序，否则键盘用户会迷路——这也是我拒绝 <code>dense</code> 的原因。</li>
+      </ul>
+
+      <blockquote>顺带说一句：这个站点的首页就是这套规则的产物。你可以把窗口拖宽拖窄，看它是怎么一格一格重排的。</blockquote>
+
+      <h2>结论</h2>
+
+      <p>如果你的内容天然不等量、又希望首屏能自己讲清楚主次，Bento 是性价比很高的选择。只要守住三条底线——<b>跨度之和等于列数、大屏才锁行高、DOM 顺序等于视觉顺序</b>——它就很耐看，也很耐用。</p>
+
+      <hr>
+
+      <p class="muted">下一篇：<a href="toys-that-teach.html">做玩具，是检验设计直觉最快的方式</a>。</p>
+    </article>
+
+        <footer class="footer">
+      <p>© 2026 邵乙梆 · 手绘与手写代码</p>
+      <p class="mono"><a href="index.html">← 回随笔列表</a> · <a href="../index.html">回街区首页</a></p>
+    </footer>
+  </div>
+</main>
+<audio id="bgm" src="../music.mp3" loop preload="none"></audio>
+<script src="../assets/js/illustrated.js"></script>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-base=".">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>邵乙梆 · 初级全栈开发者</title>
+<meta name="description" content="邵乙梆的个人主页：作品集、设计随笔，以及几个做得有点上头的浏览器小工具。">
+<meta name="theme-color" content="#f5f5f7">
+<meta property="og:title" content="邵乙梆 · 初级全栈开发者">
+<meta property="og:description" content="作品集、设计随笔，以及几个做得有点上头的浏览器小工具。">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231d1d1f'/%3E%3Ctext x='16' y='21' font-family='Helvetica,Arial,sans-serif' font-size='11' font-weight='700' fill='%23f5f5f7' text-anchor='middle'%3ESYB%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>
+  (function () {
+    document.documentElement.classList.add("js");
+    try {
+      var saved = localStorage.getItem("theme");
+      var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.dataset.theme = saved || (sysDark ? "dark" : "light");
+    } catch (e) {
+      document.documentElement.dataset.theme = "light";
+    }
+  })();
+</script>
+</head>
+<body data-email="shaoyibang@163.com">
+<a class="skip-link" href="#main">跳到主要内容</a>
+
+<header class="nav">
+  <nav class="nav__inner" aria-label="主导航">
+    <a class="nav__brand" href="index.html">
+      <span class="nav__mark" aria-hidden="true">S</span>
+      <span>邵乙梆</span>
+    </a>
+    <ul class="nav__links">
+      <li><a class="nav__link" data-nav="home" href="index.html">首页</a></li>
+      <li><a class="nav__link" data-nav="blog" href="blog/index.html">随笔</a></li>
+      <li><a class="nav__link" data-nav="tools" href="tools.html">工具</a></li>
+      <li><a class="nav__link" data-nav="works" href="works.html">作品</a></li>
+    </ul>
+    <div class="nav__actions">
+      <button class="kbd-hint" type="button" data-cmdk-open aria-label="打开命令面板">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        搜索 <kbd>⌘K</kbd>
+      </button>
+      <button class="icon-btn" type="button" data-theme-toggle aria-label="切换深色模式"></button>
+    </div>
+  </nav>
+</header>
+
+<main class="page" id="main">
+  <div class="wrap">
+
+    <section class="bento" aria-label="个人概览">
+
+      <!-- 1. 主标题 -->
+      <article class="tile tile--hero reveal">
+        <span class="hero__eyebrow"><span class="dot" aria-hidden="true"></span> 在学全栈 · 郑州</span>
+        <div class="tile__grow" style="display:flex;flex-direction:column;justify-content:center;gap:16px">
+          <h1 class="hero__title">把复杂的东西，<br>做得让人<em>想多看一眼</em>。</h1>
+          <p class="hero__sub">我是邵乙梆，初级全栈开发者。白天写产品级前端，晚上折腾浏览器里的小工具——这个站点就是我的试验田。</p>
+        </div>
+        <div class="hero__cta">
+          <a class="btn btn--primary" href="works.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"/></svg>
+            看看作品
+          </a>
+          <a class="btn" href="tools.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="7" width="19" height="10" rx="5"/><path d="M7.5 10v4M5.5 12h4"/><circle cx="16" cy="11" r="1"/><circle cx="18.5" cy="13.5" r="1"/></svg>
+            逛工具实验室
+          </a>
+          <button class="btn btn--ghost" type="button" data-cmdk-open>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            按 ⌘K 搜全站
+          </button>
+        </div>
+      </article>
+
+      <!-- 2. 头像插画 -->
+      <article class="tile tile--portrait reveal">
+        <div class="tile__head">
+          <span class="tile__label">Portrait</span>
+          <span class="tag">郑州</span>
+        </div>
+        <div class="portrait" aria-hidden="true">
+          <svg viewBox="0 0 200 200" role="img" aria-label="抽象几何头像插画">
+            <defs>
+              <clipPath id="pclip"><rect x="0" y="0" width="200" height="200" rx="28"/></clipPath>
+              <linearGradient id="pgrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="var(--accent)"/>
+                <stop offset="1" stop-color="#7c3aed"/>
+              </linearGradient>
+            </defs>
+            <g clip-path="url(#pclip)">
+              <rect width="200" height="200" fill="url(#pgrad)"/>
+              <circle cx="152" cy="42" r="34" fill="var(--lime)" opacity="0.92"/>
+              <path d="M0 168 Q50 132 100 168 T200 168 V200 H0Z" fill="#1d1d1f" opacity="0.28"/>
+              <circle cx="100" cy="96" r="46" fill="#f5f5f7"/>
+              <circle cx="84" cy="90" r="6" fill="#1d1d1f"/>
+              <circle cx="116" cy="90" r="6" fill="#1d1d1f"/>
+              <path d="M82 114 Q100 130 118 114" fill="none" stroke="#1d1d1f" stroke-width="6" stroke-linecap="round"/>
+              <path d="M56 82 Q100 44 144 82" fill="none" stroke="#1d1d1f" stroke-width="9" stroke-linecap="round"/>
+            </g>
+          </svg>
+        </div>
+        <div class="tile__foot">
+          <span class="tag">产品前端</span>
+          <span class="tag">设计工程</span>
+          <span class="tag">WebGL</span>
+        </div>
+      </article>
+
+      <!-- 3. Now -->
+      <article class="tile tile--now reveal">
+        <div class="tile__head">
+          <span class="tile__label">Now</span>
+          <span class="dot" aria-hidden="true"></span>
+        </div>
+        <div class="now-list">
+          <div class="now-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M5 8l7-5 7 5"/></svg>
+            <span><b>在做</b><br>把这个站点一版一版改下去</span>
+          </div>
+          <div class="now-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h9l5 5v13H5z"/><path d="M14 3v5h5"/></svg>
+            <span><b>在读</b><br>xxl-job 的源码</span>
+          </div>
+          <div class="now-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>
+            <span><b>在学</b><br>全栈，前端到后端</span>
+          </div>
+        </div>
+        <div class="tile__foot">
+          <span class="muted" style="font-size:.82rem">写于 2026 年 2 月</span>
+        </div>
+      </article>
+
+      <!-- 4. 精选作品 -->
+      <article class="tile tile--works reveal">
+        <div class="tile__head">
+          <div>
+            <span class="tile__label">Selected Work</span>
+            <h2 class="tile__title">现在有什么</h2>
+          </div>
+          <a class="btn btn--sm" href="works.html">全部作品</a>
+        </div>
+        <div class="mini-works">
+          <a class="mini-work" href="index.html">
+            <span class="thumb" aria-hidden="true">
+              <svg viewBox="0 0 200 80" preserveAspectRatio="none">
+                <rect width="200" height="80" fill="#0b0b0f"/>
+                <circle cx="42" cy="40" r="22" fill="var(--accent)"/>
+                <rect x="76" y="20" width="104" height="10" rx="5" fill="#3f3f46"/>
+                <rect x="76" y="38" width="72" height="10" rx="5" fill="#3f3f46"/>
+                <rect x="76" y="56" width="88" height="10" rx="5" fill="var(--lime)"/>
+              </svg>
+            </span>
+            <h4>Sean 的小街区</h4>
+            <p>这个站点本身：整页手绘 SVG、四套配色、零框架。</p>
+          </a>
+          <a class="mini-work" href="tools.html">
+            <span class="thumb" aria-hidden="true">
+              <svg viewBox="0 0 200 80" preserveAspectRatio="none">
+                <rect width="200" height="80" fill="#f5f5f7"/>
+                <rect x="14" y="14" width="52" height="52" rx="12" fill="var(--accent)"/>
+                <rect x="74" y="14" width="52" height="24" rx="12" fill="#1d1d1f"/>
+                <rect x="74" y="42" width="52" height="24" rx="12" fill="#d4d4d8"/>
+                <rect x="134" y="14" width="52" height="52" rx="12" fill="var(--lime)"/>
+              </svg>
+            </span>
+            <h4>工具实验室</h4>
+            <p>涂鸦板、贪吃蛇、生命游戏，三个纯 Canvas 小玩意。</p>
+          </a>
+        </div>
+      </article>
+
+      <!-- 5. 贡献热力图 -->
+      <article class="tile tile--heat reveal">
+        <div class="tile__head">
+          <div>
+            <span class="tile__label">Activity</span>
+            <h2 class="tile__title">过去 26 周</h2>
+          </div>
+          <span class="muted mono" data-heat-total>—</span>
+        </div>
+        <div class="heat" data-heat role="img" aria-label="过去 26 周的代码提交热度示意"></div>
+        <div class="tile__foot">
+          <span class="heat-legend">
+            少
+            <i style="background:var(--heat-0)"></i>
+            <i style="background:var(--heat-1)"></i>
+            <i style="background:var(--heat-2)"></i>
+            <i style="background:var(--heat-3)"></i>
+            <i style="background:var(--heat-4)"></i>
+            多
+          </span>
+          <span class="muted" style="font-size:.8rem;margin-left:auto">接 GitHub API 可换成真实数据</span>
+        </div>
+      </article>
+
+      <!-- 6. 随机一句 -->
+      <article class="tile tile--quote tile--lime reveal">
+        <div class="tile__head">
+          <span class="tile__label">Random Note</span>
+          <button class="icon-btn" type="button" data-shuffle-quote aria-label="换一句" title="换一句" style="color:inherit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5"/><path d="M21 3 3 21"/><path d="M21 16v5h-5"/><path d="M3 3l6 6"/></svg>
+          </button>
+        </div>
+        <div class="quote">
+          <p class="quote__text" data-quote-text>好的界面不解释自己，它只是让人不迷路。</p>
+          <p class="quote__from" data-quote-from>— 关于设计</p>
+        </div>
+      </article>
+
+      <!-- 7. 工具入口 -->
+      <article class="tile tile--tools reveal">
+        <div class="tile__head">
+          <div>
+            <span class="tile__label">Tools</span>
+            <h2 class="tile__title">工具实验室</h2>
+          </div>
+          <a class="btn btn--sm" href="tools.html">全部打开</a>
+        </div>
+        <div class="toy-links">
+          <a class="toy-link" href="tools.html#doodle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1 10-10a2.1 2.1 0 0 0-3-3L5 16z"/><path d="M14.5 6.5 17.5 9.5"/></svg>
+            <span>涂鸦板</span>
+          </a>
+          <a class="toy-link" href="tools.html#snake">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17V9a3 3 0 0 1 6 0v6a3 3 0 0 0 6 0V7"/><circle cx="7" cy="18.5" r="1.6"/></svg>
+            <span>贪吃蛇</span>
+          </a>
+          <a class="toy-link" href="tools.html#life">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><path d="M17.5 14v7M14 17.5h7"/></svg>
+            <span>生命游戏</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- 8. 联系方式 -->
+      <article class="tile tile--contact tile--ink reveal">
+        <div class="tile__head">
+          <span class="tile__label">Contact</span>
+        </div>
+        <p style="font-size:.98rem;max-width:32ch">有想一起做的东西？发封邮件，我通常 24 小时内回。</p>
+        <div class="tile__foot">
+          <div class="socials">
+            <a class="social" href="mailto:shaoyibang@163.com" aria-label="发送邮件" title="发邮件" style="background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.24);color:inherit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/></svg>
+            </a>
+            <a class="social" href="works.html" aria-label="GitHub 主页" title="GitHub" style="background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.24);color:inherit">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.95 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.6 9.6 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.85-2.35 4.7-4.58 4.94.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
+            </a>
+            <a class="social" href="blog/index.html" aria-label="阅读博客" title="博客" style="background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.24);color:inherit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h9l5 5v13H5z"/><path d="M14 3v5h5"/><path d="M8.5 13h7M8.5 17h5"/></svg>
+            </a>
+          </div>
+          <span class="mono" style="font-size:.82rem;margin-left:auto">shaoyibang@163.com</span>
+        </div>
+      </article>
+
+      <!-- 9. 最新文章 -->
+      <article class="tile tile--blog reveal">
+        <div class="tile__head">
+          <div>
+            <span class="tile__label">Writing</span>
+            <h2 class="tile__title">最近写的</h2>
+          </div>
+          <a class="btn btn--sm" href="blog/index.html">全部文章</a>
+        </div>
+        <div class="post-list">
+          <a class="post-row" href="blog/bento-layout.html">
+            <time datetime="2026-02-08">2026-02-08</time>
+            <strong>Bento 网格为什么这么耐看</strong>
+            <span class="arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="post-row" href="blog/toys-that-teach.html">
+            <time datetime="2026-01-21">2026-01-21</time>
+            <strong>做玩具，是检验设计直觉最快的方式</strong>
+            <span class="arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="post-row" href="blog/no-js-first.html">
+            <time datetime="2026-01-04">2026-01-04</time>
+            <strong>先让它不用 JS 也能用</strong>
+            <span class="arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- 10. 书架 -->
+      <article class="tile tile--read reveal">
+        <div class="tile__head">
+          <div>
+            <span class="tile__label">About this site</span>
+            <h2 class="tile__title">关于这个站点</h2>
+          </div>
+        </div>
+        <div class="shelf">
+          <div class="shelf-item">
+            <div class="shelf-item__top"><b>整页手绘 SVG</b><span>0 张图片</span></div>
+          </div>
+          <div class="shelf-item">
+            <div class="shelf-item__top"><b>四套配色</b><span>靠 CSS 变量切换</span></div>
+          </div>
+          <div class="shelf-item">
+            <div class="shelf-item__top"><b>零依赖</b><span>无框架 · 无构建</span></div>
+          </div>
+        </div>
+        <div class="tile__foot">
+          <span class="muted" style="font-size:.82rem">一边学一边改，改到满意为止</span>
+        </div>
+      </article>
+
+    </section>
+
+    <footer class="footer">
+      <span>© 2026 邵乙梆 · 用 HTML、CSS 和一点好奇心搭的</span>
+      <span class="mono">⌘K 打开命令面板 · <a href="index.html" style="color:var(--accent)">回首页 →</a></span>
+    </footer>
+  </div>
+</main>
+
+<nav class="tabbar" aria-label="移动端导航">
+  <a class="tabbar__item" data-nav="home" href="index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.4 12 3l9 7.4"/><path d="M5.5 9.2V21h13V9.2"/></svg>
+    首页
+  </a>
+  <a class="tabbar__item" data-nav="blog" href="blog/index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h9l5 5v13H5z"/><path d="M14 3v5h5"/><path d="M8.5 13h7M8.5 17h5"/></svg>随笔</a>
+  <a class="tabbar__item" data-nav="tools" href="tools.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="7" width="19" height="10" rx="5"/><path d="M7.5 10v4M5.5 12h4"/><circle cx="16" cy="11" r="1"/><circle cx="18.5" cy="13.5" r="1"/></svg>
+    工具
+  </a>
+  <a class="tabbar__item" data-nav="works" href="works.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"/></svg>
+    作品
+  </a>
+</nav>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>

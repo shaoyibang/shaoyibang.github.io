@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-base="..">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>先让它不用 JS 也能用 · Sean 的小街区</title>
+<meta name="description" content="不是复古情怀，而是最便宜的性能预算和最强的健壮性测试。三条约束，能救掉一大半的返工。">
+<meta name="theme-color" content="#dce4f5">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2322304e'/%3E%3Ctext x='16' y='21.5' font-family='Helvetica,Arial,sans-serif' font-size='11' font-weight='800' fill='%23f7c948' text-anchor='middle'%3ESYB%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=ZCOOL+KuaiLe&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/illustrated.css">
+<script>
+  (function () {
+    document.documentElement.classList.add("js");
+    try {
+      var p = localStorage.getItem("palette");
+      if (p) document.documentElement.dataset.palette = p;
+    } catch (e) { /* 隐私模式下忽略 */ }
+  })();
+</script>
+</head>
+<body data-email="shaoyibang@163.com">
+<a class="skip-link" href="#main">跳到主要内容</a>
+
+<header class="ih">
+  <div class="wrap ih__in">
+    <a class="logo" href="../index.html">
+      SYB
+      <span class="sr-only">Sean 的小街区，回到首页</span>
+    </a>
+
+    <div class="topbar__left">
+      <time class="clock" role="timer" aria-live="off" aria-label="当前北京时间" title="北京时间 · UTC+8">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.4V12l3.2 2"/></svg>
+        <b data-bj-time>--:--:--</b>
+        <span class="clock__zone">北京时间</span>
+      </time>
+
+      <p class="countdown" data-countdown hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="3"/><path d="M8 3v4M16 3v4M3.5 10.5h17"/></svg>
+        <span data-cd-text>—</span>
+      </p>
+    </div>
+
+    <button class="music" type="button" id="music-btn" aria-pressed="false" aria-label="打开背景音乐" title="背景音乐：关（点一下播放）">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 18V6l10-2v12"/>
+        <circle cx="6.5" cy="18" r="2.5"/>
+        <circle cx="16.5" cy="16" r="2.5"/>
+        <path class="music__slash" d="M4.5 4.5l15 15"/>
+      </svg>
+    </button>
+    <nav class="ih__nav" aria-label="主导航">
+      <a class="ih__link is-active" href="index.html" aria-current="page">随笔</a>
+      <a class="ih__link" href="../tools.html">工具</a>
+      <a class="ih__link" href="../works.html">作品</a>
+    </nav>
+    <div class="topbar__right">
+      <div class="palette" role="radiogroup" aria-label="配色主题">
+        <button class="palette__dot" type="button" role="radio" aria-checked="true" data-palette-set="day" aria-label="白天" title="白天" style="background:#dce4f5"></button>
+        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="dusk" aria-label="黄昏" title="黄昏" style="background:#c98a86"></button>
+        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="night" aria-label="夜晚" title="夜晚" style="background:#131c44"></button>
+        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="print" aria-label="复古印刷" title="复古印刷" style="background:#f0ead9"></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="page" id="main">
+  <div class="wrap">
+
+    <a class="back-link" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
+      返回文章列表
+    </a>
+
+    <div class="post-head">
+      <div class="card__meta" style="margin-bottom:14px">
+        <time datetime="2026-01-04">2026-01-04</time><span>·</span><span>5 分钟</span><span>·</span><span>性能 / 渐进增强</span>
+      </div>
+      <h1>先让它不用 JS 也能用</h1>
+      <p class="lede">不是复古情怀，而是最便宜的性能预算和最强的健壮性测试。三条约束，能救掉一大半的返工。</p>
+    </div>
+
+    <article class="prose">
+      <p>我做这个站点的第一件事，是把所有内容写成静态 HTML，然后再往上加 JavaScript。听起来很朴素，但顺序反过来——先想好交互再补内容——你几乎一定会写出一个"JS 一挂就全白"的页面。</p>
+
+      <p>这不是关于禁用 JS 的极客洁癖。真实世界里的网络会抖、CDN 会挂、公司代理会拦脚本。<b>你的页面在这些时候是显示内容，还是显示一片空白，取决于你写第一行代码时的顺序。</b></p>
+
+      <h2>约束一：内容必须在 HTML 里，不能在 JS 里</h2>
+
+      <p>反例很常见：一个空 <code>&lt;div id="app"&gt;&lt;/div&gt;</code>，所有文字靠接口返回后渲染。它的代价是用户要等"HTML → JS 下载 → 解析 → 请求 → 渲染"四跳才能看见第一个字。</p>
+
+      <p>我的规则是：<b>首屏的每一个字都必须存在于初始 HTML 中。</b>这个站的首页有十张卡片、几十个标签，全部是静态标签，JS 只负责交互：命令面板、主题切换、随机语录。所以就算 JS 完全加载失败，你依然能读完首页、点进任何一篇文章。</p>
+
+      <blockquote>一个自检方法：把浏览器的 JS 关掉，刷新页面。如果还能读完主要内容并完成导航，这个页面的骨架就是对的。</blockquote>
+
+      <h2>约束二：渐进增强，而不是优雅降级</h2>
+
+      <p>两者的区别在于<b>默认状态是什么</b>。优雅降级是"我先做炫的，再想办法兜底"，于是兜底永远排在最后，永远没时间做。渐进增强是"我先做能用的，再往上加体验"。</p>
+
+      <p>具体到代码里，我尽量让"没有 JS"这一态不需要额外写代码，只要<b>别把功能焊死在 JS 上</b>。比如导航就是普通的 <code>&lt;a&gt;</code>，主题切换才需要脚本；文章列表是普通链接，命令面板只是加速器——没有它，站点依然完整。</p>
+
+      <pre><code>&lt;!-- 好：没有 JS 也是完整可用的链接 --&gt;
+&lt;a class="post-row" href="blog/bento-layout.html"&gt;
+  &lt;strong&gt;Bento 网格为什么这么耐看&lt;/strong&gt;
+&lt;/a&gt;
+
+&lt;!-- 差：href="#" + 点击事件，JS 一挂就死 --&gt;
+&lt;a class="post-row" href="#" onclick="openPost(3)"&gt;…&lt;/a&gt;</code></pre>
+
+      <h2>约束三：性能预算先定，再动手</h2>
+
+      <p>我给这个站点定的预算是：<b>首屏 HTML + CSS 小于 60KB，阻塞渲染的请求只有两个</b>（样式表和字体）。为了守住它，我做了三个取舍：</p>
+
+      <ul>
+        <li><b>不用 UI 框架。</b>一个个人站点不需要虚拟 DOM，手写 CSS 反而更快也更小。</li>
+        <li><b>图标全部内联 SVG。</b>省掉一整套图标字体的下载，还能直接用 <code>currentColor</code> 跟随主题变色。</li>
+        <li><b>字体只加载需要的字重。</b>标题 500/600/700，正文 400/500/600，其余不加载，并配好系统字体兜底栈。</li>
+      </ul>
+
+      <p>字体这里有个细节值得单独说：<code>font-display: swap</code> 是必须的，但更重要的是<b>兜底字体要选对</b>。我把 <code>system-ui</code> 和中文系统字体放在链尾，所以即使 Google Fonts 被墙，页面也不会出现文字闪烁或布局跳动得离谱。</p>
+
+      <h2>这三条约束换来了什么</h2>
+
+      <p>最直接的收益是稳健：断网、代理拦截、脚本出错，站点都还能读。其次是速度——没有水合、没有运行时，首屏几乎是"下图即见"。</p>
+
+      <p>但我觉得最大的收益是<b>设计上的</b>。当你不能靠 JS 补救布局时，你会被迫把结构想清楚：什么是一级信息、什么是可选的增强、状态该用什么原生元素表达。这三条约束像一把尺子，把"以后再说"的模糊决策提前逼了出来。</p>
+
+      <blockquote>顺带说一句，键盘用户会感谢你：原生 <code>&lt;a&gt;</code>、<code>&lt;button&gt;</code> 自带焦点、回车和读屏支持。你少写的那几百行 JS，很多本来就是在手搓这些。</blockquote>
+
+      <hr>
+
+      <p class="muted">上一篇：<a href="toys-that-teach.html">做玩具，是检验设计直觉最快的方式</a>。</p>
+    </article>
+
+        <footer class="footer">
+      <p>© 2026 邵乙梆 · 手绘与手写代码</p>
+      <p class="mono"><a href="index.html">← 回随笔列表</a> · <a href="../index.html">回街区首页</a></p>
+    </footer>
+  </div>
+</main>
+<audio id="bgm" src="../music.mp3" loop preload="none"></audio>
+<script src="../assets/js/illustrated.js"></script>
+</body>
+</html>

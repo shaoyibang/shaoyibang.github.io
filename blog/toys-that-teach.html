@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-base="..">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>做玩具，是检验设计直觉最快的方式 · Sean 的小街区</title>
+<meta name="description" content="一个玩具没有需求文档、没有老板、也没有借口。它会在五分钟内告诉你，你的手感到底行不行。">
+<meta name="theme-color" content="#dce4f5">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2322304e'/%3E%3Ctext x='16' y='21.5' font-family='Helvetica,Arial,sans-serif' font-size='11' font-weight='800' fill='%23f7c948' text-anchor='middle'%3ESYB%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=ZCOOL+KuaiLe&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/illustrated.css">
+<script>
+  (function () {
+    document.documentElement.classList.add("js");
+    try {
+      var p = localStorage.getItem("palette");
+      if (p) document.documentElement.dataset.palette = p;
+    } catch (e) { /* 隐私模式下忽略 */ }
+  })();
+</script>
+</head>
+<body data-email="shaoyibang@163.com">
+<a class="skip-link" href="#main">跳到主要内容</a>
+
+<header class="ih">
+  <div class="wrap ih__in">
+    <a class="logo" href="../index.html">
+      SYB
+      <span class="sr-only">Sean 的小街区，回到首页</span>
+    </a>
+
+    <div class="topbar__left">
+      <time class="clock" role="timer" aria-live="off" aria-label="当前北京时间" title="北京时间 · UTC+8">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.4V12l3.2 2"/></svg>
+        <b data-bj-time>--:--:--</b>
+        <span class="clock__zone">北京时间</span>
+      </time>
+
+      <p class="countdown" data-countdown hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="3"/><path d="M8 3v4M16 3v4M3.5 10.5h17"/></svg>
+        <span data-cd-text>—</span>
+      </p>
+    </div>
+
+    <button class="music" type="button" id="music-btn" aria-pressed="false" aria-label="打开背景音乐" title="背景音乐：关（点一下播放）">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 18V6l10-2v12"/>
+        <circle cx="6.5" cy="18" r="2.5"/>
+        <circle cx="16.5" cy="16" r="2.5"/>
+        <path class="music__slash" d="M4.5 4.5l15 15"/>
+      </svg>
+    </button>
+    <nav class="ih__nav" aria-label="主导航">
+      <a class="ih__link is-active" href="index.html" aria-current="page">随笔</a>
+      <a class="ih__link" href="../tools.html">工具</a>
+      <a class="ih__link" href="../works.html">作品</a>
+    </nav>
+    <div class="topbar__right">
+      <div class="palette" role="radiogroup" aria-label="配色主题">
+        <button class="palette__dot" type="button" role="radio" aria-checked="true" data-palette-set="day" aria-label="白天" title="白天" style="background:#dce4f5"></button>
+        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="dusk" aria-label="黄昏" title="黄昏" style="background:#c98a86"></button>
+        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="night" aria-label="夜晚" title="夜晚" style="background:#131c44"></button>
+        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="print" aria-label="复古印刷" title="复古印刷" style="background:#f0ead9"></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="page" id="main">
+  <div class="wrap">
+
+    <a class="back-link" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
+      返回文章列表
+    </a>
+
+    <div class="post-head">
+      <div class="card__meta" style="margin-bottom:14px">
+        <time datetime="2026-01-21">2026-01-21</time><span>·</span><span>6 分钟</span><span>·</span><span>交互 / 手感</span>
+      </div>
+      <h1>做玩具，是检验设计直觉最快的方式</h1>
+      <p class="lede">一个玩具没有需求文档、没有老板、也没有借口。它会在五分钟内告诉你，你的手感到底行不行。</p>
+    </div>
+
+    <article class="prose">
+      <p>工作里的项目太慢了。一个按钮的手感要等三轮评审、两次排期、一次灰度，等你终于摸到它的时候，已经忘了当初为什么这么设计。玩具不一样：<b>从想法到能上手玩，中间只有一个下午。</b></p>
+
+      <p>我在<a href="../tools.html">工具实验室</a>里放了三个东西。它们都很小，但每一个都逼我回答了一个真问题。</p>
+
+      <h2>涂鸦板：延迟感是怎么来的</h2>
+
+      <p>第一个版本，我从 <code>pointermove</code> 事件里拿坐标直接画点。结果线看起来是断的——因为指针事件的采样率跟不上手的移动速度，快速划过的轨迹上会出现一串离散的点。</p>
+
+      <p>修法是把"点"改成"线"：记住上一个坐标，每来一个新坐标就画一段 <code>lineTo</code>，并设置 <code>lineCap: round</code> 和 <code>lineJoin: round</code> 让接头平滑。</p>
+
+      <pre><code>function stroke(a, b) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = size;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(a.x, a.y);
+  ctx.lineTo(b.x, b.y);
+  ctx.stroke();
+}</code></pre>
+
+      <p>还有一个隐蔽的坑：canvas 有内部像素尺寸和 CSS 显示尺寸两套坐标。用 <code>e.clientX</code> 直接当绘制坐标，只在画布 1:1 显示时才对。正确做法是先按 <code>getBoundingClientRect()</code> 换算：</p>
+
+      <pre><code>const r = canvas.getBoundingClientRect();
+const x = (e.clientX - r.left) / r.width  * canvas.width;
+const y = (e.clientY - r.top)  / r.height * canvas.height;</code></pre>
+
+      <p>这样画布可以随意响应式缩放，笔迹都落在该落的地方。<b>这个换算我后来在贪吃蛇和生命游戏里又抄了两遍——它值得成为肌肉记忆。</b></p>
+
+      <h2>贪吃蛇：一次关于"节奏"的教训</h2>
+
+      <p>我第一版用 <code>setInterval</code> 推进游戏。问题在移动端立刻暴露：切换标签页回来，游戏会瞬间补跑十几步，蛇直接撞墙。用户看到的是"我一回来就死了"，体验极差。</p>
+
+      <p>换成 <code>requestAnimationFrame</code> 加时间累加器之后，逻辑步进和渲染帧率解耦，卡顿也不会导致补跑：</p>
+
+      <pre><code>function loop(t) {
+  raf = requestAnimationFrame(loop);
+  if (!running) return;
+  if (!lastT) lastT = t;
+  acc += t - lastT;
+  lastT = t;
+  while (acc &gt;= STEP) { acc -= STEP; step(); }
+}</code></pre>
+
+      <p>另一个教训是速度。115ms 一格时，第一次玩的人几乎必撞墙；改成 150ms 之后，同样的代码忽然"会玩了"。<b>难度不是数值问题，是节奏问题。</b>快 35 毫秒，体感就是另一个游戏。</p>
+
+      <h2>生命游戏：把控制权交出去</h2>
+
+      <p>前两个玩具我都在设计"规则"，第三个我试着什么都不设计——只给网格，让用户自己画。结果它成了我最喜欢的一个：有人在上面画字母，有人画心形，然后一起看它怎么碎掉。</p>
+
+      <p>技术上唯一值得说的是环形边界。用取模让上下左右相连，图案就不会在边缘"死气沉沉"地撞墙消散：</p>
+
+      <pre><code>const nx = (x + dx + COLS) % COLS;
+const ny = (y + dy + ROWS) % ROWS;</code></pre>
+
+      <h2>玩具教给我的三件事</h2>
+
+      <ol>
+        <li><b>手感是能被量化的。</b>"这感觉不太对"通常等价于某个具体数字不对：延迟 35ms、圆角多 4px、缓动曲线选错。玩具让你有耐心把它找出来。</li>
+        <li><b>边界情况会自己找上门。</b>标签页切换、指针离开画布、双击缩放、系统开启"减少动态效果"——这些在正式项目里往往排不上测试用例，在玩具里你一定会撞上。</li>
+        <li><b>做完比做好重要。</b>三个玩具没有一个是"完成品"，但它们都在线、都能玩。这份完整感，比任何设计稿都更让人踏实。</li>
+      </ol>
+
+      <blockquote>如果你也想动手：从最小的那个开始。一个能让人玩第二次的小东西，比一份完美的方案更有说服力。</blockquote>
+
+      <hr>
+
+      <p class="muted">上一篇：<a href="bento-layout.html">Bento 网格为什么这么耐看</a>。</p>
+    </article>
+
+        <footer class="footer">
+      <p>© 2026 邵乙梆 · 手绘与手写代码</p>
+      <p class="mono"><a href="index.html">← 回随笔列表</a> · <a href="../index.html">回街区首页</a></p>
+    </footer>
+  </div>
+</main>
+<audio id="bgm" src="../music.mp3" loop preload="none"></audio>
+<script src="../assets/js/illustrated.js"></script>
+</body>
+</html>

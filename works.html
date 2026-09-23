@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-base=".">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我在做什么 · Sean 的小街区</title>
+<meta name="description" content="邵乙梆（Sean）目前在做什么：这个站点、三个 Canvas 小工具，以及正在读源码的开源项目。">
+<meta name="theme-color" content="#dce4f5">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2322304e'/%3E%3Ctext x='16' y='21.5' font-family='Helvetica,Arial,sans-serif' font-size='11' font-weight='800' fill='%23f7c948' text-anchor='middle'%3ESYB%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=ZCOOL+KuaiLe&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/illustrated.css">
+<script>
+  (function () {
+    document.documentElement.classList.add("js");
+    try {
+      var p = localStorage.getItem("palette");
+      if (p) document.documentElement.dataset.palette = p;
+    } catch (e) { /* 隐私模式下忽略 */ }
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要内容</a>
+
+<header class="ih">
+  <div class="wrap ih__in">
+    <a class="logo" href="index.html">
+      SYB
+      <span class="sr-only">Sean 的小街区，回到首页</span>
+    </a>
+
+    <div class="topbar__left">
+      <time class="clock" role="timer" aria-live="off" aria-label="当前北京时间" title="北京时间 · UTC+8">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.4V12l3.2 2"/></svg>
+        <b data-bj-time>--:--:--</b>
+        <span class="clock__zone">北京时间</span>
+      </time>
+
+      <p class="countdown" data-countdown hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="3"/><path d="M8 3v4M16 3v4M3.5 10.5h17"/></svg>
+        <span data-cd-text>—</span>
+      </p>
+    </div>
+
+    <button class="music" type="button" id="music-btn" aria-pressed="false" aria-label="打开背景音乐" title="背景音乐：关（点一下播放）">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 18V6l10-2v12"/>
+        <circle cx="6.5" cy="18" r="2.5"/>
+        <circle cx="16.5" cy="16" r="2.5"/>
+        <path class="music__slash" d="M4.5 4.5l15 15"/>
+      </svg>
+    </button>
+    <nav class="ih__nav" aria-label="主导航">
+      <a class="ih__link" href="blog/index.html">随笔</a>
+      <a class="ih__link" href="tools.html">工具</a>
+      <a class="ih__link is-active" href="works.html" aria-current="page">作品</a>
+    </nav>
+    <div class="topbar__right">
+      <div class="palette" role="radiogroup" aria-label="配色主题">
+        <button class="palette__dot" type="button" role="radio" aria-checked="true" data-palette-set="day" aria-label="白天" title="白天" style="background:#dce4f5"></button>
+        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="dusk" aria-label="黄昏" title="黄昏" style="background:#c98a86"></button>
+        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="night" aria-label="夜晚" title="夜晚" style="background:#131c44"></button>
+        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="print" aria-label="复古印刷" title="复古印刷" style="background:#f0ead9"></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="page" id="main">
+  <div class="wrap">
+
+    <div class="page-head">
+      <span class="eyebrow"><i aria-hidden="true"></i> Works</span>
+      <h1>我在做什么</h1>
+      <p class="lede">说实话，目前还没有能拿得出手的商业项目。所以这一页只放真实存在的东西——不注水，也不把 fork 来的仓库说成自己的作品。等真做出来了再往这儿加。</p>
+    </div>
+
+    <section class="cards" aria-label="在做的东西">
+
+      <article class="card">
+        <div class="card__cover" aria-hidden="true">
+          <svg viewBox="0 0 400 150" preserveAspectRatio="none">
+            <rect width="400" height="150" fill="var(--sky)"/>
+            <rect x="22" y="20" width="170" height="110" rx="14" fill="var(--teal)" stroke="var(--ink)" stroke-width="5"/>
+            <rect x="204" y="20" width="80" height="50" rx="12" fill="var(--yellow)" stroke="var(--ink)" stroke-width="5"/>
+            <rect x="296" y="20" width="82" height="50" rx="12" fill="var(--tan)" stroke="var(--ink)" stroke-width="5"/>
+            <rect x="204" y="80" width="174" height="50" rx="12" fill="var(--pink)" stroke="var(--ink)" stroke-width="5"/>
+            <path d="M56 62 h80 M56 88 h54" stroke="var(--tan)" stroke-width="8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="card__meta"><span>2026</span><span>·</span><span>自己设计 + 自己写</span></div>
+        <h3>Sean 的小街区</h3>
+        <p class="muted">你正在看的这个站点。整页手绘 SVG，四套配色靠 CSS 变量切换，零框架、零依赖、零构建——顺便当成学前端的练习场。</p>
+        <div class="work__tags">
+          <div class="tags"><span class="tag tag--teal">手写 SVG</span><span class="tag">CSS 变量</span><span class="tag">无框架</span></div>
+          <a class="btn btn--sm" href="index.html">回到首页</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__cover" aria-hidden="true">
+          <svg viewBox="0 0 400 150" preserveAspectRatio="none">
+            <rect width="400" height="150" fill="var(--sky)"/>
+            <rect x="40" y="34" width="320" height="86" rx="43" fill="var(--yellow)" stroke="var(--ink)" stroke-width="6"/>
+            <path d="M112 56 v42 M91 77 h42" stroke="var(--ink)" stroke-width="8" stroke-linecap="round"/>
+            <circle cx="270" cy="62" r="11" fill="var(--pink)" stroke="var(--ink)" stroke-width="4"/>
+            <circle cx="310" cy="92" r="11" fill="var(--teal)" stroke="var(--ink)" stroke-width="4"/>
+          </svg>
+        </div>
+        <div class="card__meta"><span>2026</span><span>·</span><span>纯前端</span></div>
+        <h3>工具实验室</h3>
+        <p class="muted">涂鸦板、贪吃蛇、生命游戏。用 Canvas 练指针事件、帧循环和时间累加器——三个都不联网，打开就能玩。</p>
+        <div class="work__tags">
+          <div class="tags"><span class="tag tag--pink">Canvas 2D</span><span class="tag">JavaScript</span></div>
+          <a class="btn btn--sm" href="tools.html">去用一下</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__cover" aria-hidden="true">
+          <svg viewBox="0 0 400 150" preserveAspectRatio="none">
+            <rect width="400" height="150" fill="var(--tan)"/>
+            <rect x="30" y="26" width="150" height="98" rx="12" fill="var(--paper)" stroke="var(--ink)" stroke-width="5"/>
+            <path d="M48 50h114M48 70h84M48 90h100" stroke="var(--teal)" stroke-width="7" stroke-linecap="round"/>
+            <rect x="204" y="26" width="166" height="98" rx="12" fill="var(--paper)" stroke="var(--ink)" stroke-width="5"/>
+            <path d="M226 52h60M226 74h110M226 96h76" stroke="var(--pink)" stroke-width="7" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="card__meta"><span>进行中</span><span>·</span><span>读源码</span></div>
+        <h3>正在啃的两个开源项目</h3>
+        <p class="muted">xxl-job（Java，分布式任务调度）和 next-ai-draw-io（Next.js，让 AI 画流程图）。都是 fork 下来读和改的，还没到能算自己作品的程度，但确实在花时间。</p>
+        <div class="work__tags">
+          <div class="tags"><span class="tag tag--yellow">Java</span><span class="tag">Next.js</span><span class="tag">AI</span></div>
+          <a class="btn btn--sm" href="https://github.com/shaoyibang?tab=repositories" target="_blank" rel="noopener me">GitHub 仓库</a>
+        </div>
+      </article>
+
+    </section>
+
+    <section class="section" aria-labelledby="now">
+      <div class="section__head">
+        <div>
+          <span class="eyebrow"><i aria-hidden="true"></i> Now</span>
+          <h2 class="section__title" id="now">现在的状态</h2>
+        </div>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <span class="tile__label">01 / 在学什么</span>
+          <h3>全栈</h3>
+          <p class="muted">前端到后端都在补，边做项目边把零散的知识点连起来。目前阶段：初级，还在打地基。</p>
+        </article>
+        <article class="card">
+          <span class="tile__label">02 / 怎么写的</span>
+          <h3>Vibe Coding</h3>
+          <p class="muted">先用 AI 把想法跑起来，再回头弄懂每一行为什么这么写。快是快，但读代码这一步不省。</p>
+        </article>
+        <article class="card">
+          <span class="tile__label">03 / 想找人聊聊</span>
+          <h3>随时可以发邮件</h3>
+          <p class="muted">一起做点东西、问问题、或者你也在学想找人搭伴，都行。</p>
+          <div class="work__tags">
+            <a class="btn btn--yellow" href="mailto:shaoyibang@163.com">shaoyibang@163.com</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="panel">
+        <span class="tile__label">待补充</span>
+        <h2 class="section__title" style="font-size:1.5rem;margin-top:8px">这一页还留着位置</h2>
+        <p class="muted">等手上有真实项目了，我会把上面那三张换成真的作品：写清楚问题是什么、我做了什么、结果怎么样。不编数字。</p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>© 2026 邵乙梆 · 这一页不含水分</p>
+      <p class="mono"><a href="index.html">← 回街区首页</a></p>
+    </footer>
+  </div>
+</main>
+
+<audio id="bgm" src="music.mp3" loop preload="none"></audio>
+<script src="assets/js/illustrated.js"></script>
+</body>
+</html>
