@@ -1,0 +1,244 @@
+/* =========================================================================
+   editor.css — 本地写作工具的样式
+   复用站点的设计令牌（site.css 先加载），只补编辑器自己的排布。
+   这个文件不会出现在线上站点里：它只由本地服务 tools/editor.mjs 提供。
+   ========================================================================= */
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--canvas);
+  color: var(--body);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------------------------------------------------------- 顶部栏 */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+  height: 56px;
+  padding: 0 16px;
+  background: var(--surface-card);
+  border-bottom: 1px solid var(--hairline);
+}
+.bar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.bar__brand .spike { width: 14px; height: 14px; color: var(--primary); }
+.bar__spacer { flex: 1; }
+
+/* 危险操作：红色描边，和"保存"拉开距离 */
+.btn--danger {
+  background: var(--surface-card);
+  color: #a4362b;
+  border-color: #e3b7b0;
+}
+.btn--danger:hover {
+  background: #a4362b;
+  color: #fff;
+  border-color: #a4362b;
+  box-shadow: 0 0 0 2px #a4362b;
+}
+.btn--danger:disabled,
+.btn--danger:disabled:hover {
+  background: var(--surface-soft);
+  color: var(--muted-soft);
+  border-color: var(--hairline);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.bar__status {
+  color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
+  max-width: 34ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* 顶栏里的链接式按钮要和普通按钮长得一样 */
+a.btn { text-decoration: none; }
+.bar__status.is-error { color: var(--error); }
+.bar__status.is-ok { color: #3d7a52; }
+
+/* ---------------------------------------------------------------- 主体 */
+.main {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 260px minmax(0, 1fr) minmax(0, 1fr);
+  min-height: 0;
+}
+
+.pane {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--hairline);
+}
+.pane:last-child { border-right: 0; }
+
+.pane__head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface-soft);
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* 左侧：文章列表 */
+.list { overflow-y: auto; padding: 8px; }
+.list__item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.list__item:hover { background: var(--surface-soft); }
+.list__item.is-active {
+  background: var(--primary-soft);
+  border-color: #e6c4b4;
+  color: var(--ink);
+}
+.list__item b { display: block; font-weight: 500; color: var(--ink); }
+.list__item small { color: var(--muted-soft); font-size: 12px; }
+.list__new { margin: 8px; width: calc(100% - 16px); }
+
+/* 中间：源码 */
+.editor {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  resize: none;
+  background: var(--surface-card);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.7;
+  tab-size: 2;
+}
+.editor:focus { outline: none; }
+
+/* 工具条 */
+.tools {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface-card);
+}
+.tools button {
+  min-width: 30px;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.tools button:hover { background: var(--surface-soft); }
+.tools__sep { width: 1px; height: 20px; margin: 4px 4px; background: var(--hairline); }
+.tools .tools__wide { min-width: auto; }
+
+/* 右侧：预览 */
+.preview {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 28px;
+  background: var(--canvas);
+}
+.preview__inner { max-width: var(--w-text); margin: 0 auto; }
+.preview .prose { padding-bottom: 0; }
+.preview__placeholder { color: var(--muted-soft); font-size: 14px; }
+
+/* 元信息面板 */
+.meta {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface-soft);
+}
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field--full { grid-column: 1 / -1; }
+.field label { font-size: 12px; color: var(--muted); }
+.field input, .field textarea {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface-card);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 13px;
+}
+.field textarea { resize: vertical; min-height: 54px; }
+.field input:focus, .field textarea:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 0;
+  border-color: var(--primary);
+}
+.field small { color: var(--muted-soft); font-size: 11px; }
+
+/* 拖拽上传的提示层 */
+.drop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(250, 249, 245, 0.9);
+  border: 2px dashed var(--primary);
+  color: var(--ink);
+  font-size: 16px;
+}
+.drop.is-on { display: flex; }
+
+/* 窄屏：上下堆叠，元信息单列 */
+@media (max-width: 1080px) {
+  .main { grid-template-columns: 200px minmax(0, 1fr); }
+  .pane--preview { display: none; }
+  .meta { grid-template-columns: minmax(0, 1fr); }
+}

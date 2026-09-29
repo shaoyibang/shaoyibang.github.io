@@ -1,365 +1,254 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-base=".">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sean 的小街区</title>
-<meta name="description" content="把个人网站做成一条街：每栋楼是一个栏目。邵乙梆（Sean）的站点、工具与随笔。">
-<meta name="theme-color" content="#dce4f5">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2322304e'/%3E%3Ctext x='16' y='21.5' font-family='Helvetica,Arial,sans-serif' font-size='11' font-weight='800' fill='%23f7c948' text-anchor='middle'%3ESYB%3C/text%3E%3C/svg%3E">
+<title>Sean 的工具库</title>
+<meta name="description" content="邵乙梆（Sean），在郑州写代码的全栈开发者。零框架、零依赖、零构建的个人站：随笔、工具与作品。">
+<meta name="theme-color" content="#faf9f5">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23faf9f5'/%3E%3Cg transform='matrix(0.046195,0,0,0.046195,-7.12,-9.26)'%3E%3Cpath fill='%23d97757' d='M 665 300 L 420 300 C 330 300 265 345 265 425 C 265 495 315 530 390 550 L 555 595 C 610 610 635 630 635 665 C 635 705 600 730 540 730 L 335 730 L 285 800 L 555 800 C 655 800 730 750 730 665 C 730 590 680 555 605 535 L 430 488 C 375 473 360 450 360 425 C 360 395 385 370 435 370 L 615 370 Z'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=ZCOOL+KuaiLe&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/illustrated.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&family=Inter:opsz,wght@14..32,100..900&family=JetBrains+Mono:wght@300..600&family=Noto+Serif+SC:wght@300..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css">
 <script>
-  (function () {
-    document.documentElement.classList.add("js");
-    try {
-      var p = localStorage.getItem("palette");
-      if (p) document.documentElement.dataset.palette = p;
-    } catch (e) { /* 隐私模式下忽略 */ }
-  })();
+  (function () { document.documentElement.classList.add("js"); })();
 </script>
 </head>
 <body>
 <a class="skip-link" href="#main">跳到主要内容</a>
 
-<!-- ================= 舞台：手绘街区 ================= -->
-<header class="stage" id="top">
-  <div class="scene__sky" aria-hidden="true"></div>
-
-  <div class="scene" aria-hidden="true">
-    <svg viewBox="0 0 1440 810" preserveAspectRatio="xMidYMax slice" role="presentation">
-      <defs>
-        <!-- 无缝波浪：一个周期 180，共 8 个周期 = 1440 -->
-        <path id="waveShape" d="M0 0 q45 -24 90 0 t90 0 t90 0 t90 0 t90 0 t90 0 t90 0 t90 0 V320 H0 Z"/>
-        <!-- 窗户（夜里会亮） -->
-        <g id="win">
-          <rect x="-34" y="-26" width="68" height="52" rx="8" fill="var(--win)" stroke="var(--ink)" stroke-width="5"/>
-          <path d="M0 -26 V26 M-34 0 H34" stroke="var(--ink)" stroke-width="4"/>
-        </g>
-        <g id="winRound">
-          <circle r="30" fill="var(--win)" stroke="var(--ink)" stroke-width="5"/>
-          <path d="M-21 0 H21 M0 -21 V21" stroke="var(--ink)" stroke-width="4"/>
-        </g>
-        <!-- 云：底部微微鼓出来，才不会读成「山丘」 -->
-        <path id="cloudShape" d="M-110 26 Q-84 -22 -58 26 Q-27 -58 4 26 Q33 -34 62 26 Q81 -10 100 26 Q-4 48 -110 26 Z"/>
-      </defs>
-
-      <!-- 太阳（夜里就是月亮） -->
-      <circle cx="1312" cy="138" r="92" fill="var(--sun-halo)" opacity="var(--halo-op)"/>
-      <circle cx="1312" cy="138" r="62" fill="var(--sun)"/>
-
-      <!-- 星星：只有黄昏和夜里可见 -->
-      <g class="stars" fill="var(--sun)">
-        <circle cx="160" cy="84" r="2.6"/><circle cx="250" cy="148" r="2"/>
-        <circle cx="110" cy="232" r="3"/><circle cx="300" cy="52" r="2.2"/>
-        <circle cx="86" cy="318" r="2.4"/><circle cx="216" cy="296" r="1.8"/>
-        <circle cx="1140" cy="72" r="2.8"/><circle cx="1220" cy="140" r="2"/>
-        <circle cx="1300" cy="236" r="2.6"/><circle cx="1096" cy="300" r="2.2"/>
-        <circle cx="1370" cy="180" r="1.8"/><circle cx="1180" cy="336" r="2.4"/>
-        <circle cx="420" cy="50" r="2"/><circle cx="600" cy="44" r="2.4"/>
-        <circle cx="800" cy="48" r="1.8"/><circle cx="960" cy="56" r="2.2"/>
-        <circle cx="470" cy="300" r="2"/><circle cx="700" cy="320" r="2.4"/>
-        <circle cx="900" cy="296" r="1.8"/><circle cx="360" cy="120" r="1.8"/>
-        <circle cx="1040" cy="110" r="2"/>
-      </g>
-
-      <!-- 云（外层定位、内层动画：CSS transform 会覆盖 transform 属性，必须分开） -->
-      <g transform="translate(190,128)">
-        <g class="cloud"><use href="#cloudShape" fill="var(--paper)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round"/></g>
-      </g>
-      <g transform="translate(1170,286) scale(0.85)">
-        <g class="cloud cloud-2"><use href="#cloudShape" fill="var(--paper)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round"/></g>
-      </g>
-      <g transform="translate(250,300) scale(0.6)">
-        <g class="cloud cloud-3"><use href="#cloudShape" fill="var(--paper)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round"/></g>
-      </g>
-
-      <!-- 远处天际线 -->
-      <g fill="var(--far)">
-        <rect x="-10" y="392" width="176" height="420"/>
-        <rect x="166" y="350" width="140" height="462"/>
-        <rect x="596" y="404" width="150" height="408"/>
-        <rect x="880" y="368" width="120" height="444"/>
-        <rect x="1246" y="392" width="164" height="420"/>
-        <rect x="1400" y="436" width="80" height="376"/>
-      </g>
-      <g fill="var(--far-2)">
-        <rect x="196" y="392" width="26" height="26" rx="4"/>
-        <rect x="238" y="392" width="26" height="26" rx="4"/>
-        <rect x="196" y="440" width="26" height="26" rx="4"/>
-        <rect x="626" y="444" width="26" height="26" rx="4"/>
-        <rect x="668" y="444" width="26" height="26" rx="4"/>
-        <rect x="910" y="410" width="26" height="26" rx="4"/>
-        <rect x="1276" y="436" width="26" height="26" rx="4"/>
-      </g>
-
-      <!-- ========== 粉色小店 POPS! ========== -->
-      <g class="hotspot" data-goto="#works" data-label="作品" data-sub="这条街上的三栋楼">
-        <title>点一下，去作品区</title>
-        <rect x="250" y="470" width="470" height="340" fill="var(--pink)" stroke="var(--ink)" stroke-width="6"/>
-        <path d="M250 470 H720 V522 H250 Z" fill="var(--pink-soft)" stroke="var(--ink)" stroke-width="6"/>
-        <g fill="var(--tan)">
-          <rect x="296" y="476" width="34" height="40"/>
-          <rect x="386" y="476" width="34" height="40"/>
-          <rect x="476" y="476" width="34" height="40"/>
-          <rect x="566" y="476" width="34" height="40"/>
-          <rect x="656" y="476" width="34" height="40"/>
-        </g>
-        <text x="462" y="606" font-family="Baloo 2, sans-serif" font-size="96" font-weight="800"
-              fill="var(--win)" stroke="var(--ink)" stroke-width="7" paint-order="stroke" text-anchor="middle">POPS!</text>
-        <g transform="translate(648,556)">
-          <path d="M-16 0 h32 v74 a16 16 0 0 1 -16 16 a16 16 0 0 1 -16 -16 Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="5"/>
-          <rect x="-10" y="-18" width="20" height="20" rx="4" fill="var(--yellow)" stroke="var(--ink)" stroke-width="5"/>
-          <rect x="-16" y="30" width="32" height="14" fill="var(--tan)"/>
-        </g>
-        <use href="#win" x="322" y="690"/>
-        <use href="#win" x="430" y="690"/>
-        <rect x="536" y="664" width="86" height="146" rx="10" fill="var(--teal-light)" stroke="var(--ink)" stroke-width="5"/>
-        <circle cx="604" cy="740" r="6" fill="var(--ink)"/>
-      </g>
-
-      <!-- ========== 奶油色楼 + ROYAL 竖招牌 ========== -->
-      <g class="hotspot" data-goto="#about" data-label="关于我" data-sub="King of the block">
-        <title>点一下，去关于我</title>
-        <rect x="720" y="400" width="252" height="410" fill="var(--tan)" stroke="var(--ink)" stroke-width="6"/>
-        <rect x="720" y="400" width="252" height="30" fill="var(--far-2)" stroke="var(--ink)" stroke-width="6"/>
-        <rect x="752" y="452" width="74" height="286" rx="14" fill="var(--teal-dark)" stroke="var(--ink)" stroke-width="6"/>
-        <path d="M789 486 V530 M767 508 H811" stroke="var(--tan)" stroke-width="12" stroke-linecap="round"/>
-        <g font-family="Baloo 2, sans-serif" font-size="42" font-weight="800" fill="var(--win)" text-anchor="middle">
-          <text x="789" y="576">R</text>
-          <text x="789" y="616">O</text>
-          <text x="789" y="656">Y</text>
-          <text x="789" y="696">A</text>
-        </g>
-        <use href="#winRound" x="890" y="500"/>
-        <use href="#winRound" x="890" y="606"/>
-        <rect x="858" y="676" width="76" height="134" rx="10" fill="var(--pink)" stroke="var(--ink)" stroke-width="5"/>
-      </g>
-
-      <!-- ========== 绿色楼 ========== -->
-      <g class="hotspot" data-goto="#tools" data-label="工具" data-sub="街角的工具箱">
-        <title>点一下，去工具区</title>
-        <rect x="972" y="440" width="300" height="370" fill="var(--green)" stroke="var(--ink)" stroke-width="6"/>
-        <rect x="972" y="440" width="300" height="26" fill="var(--green-dark)" stroke="var(--ink)" stroke-width="6"/>
-        <use href="#win" x="1046" y="524"/>
-        <use href="#win" x="1160" y="524"/>
-        <use href="#win" x="1046" y="640"/>
-        <rect x="1142" y="686" width="80" height="124" rx="10" fill="var(--yellow)" stroke="var(--ink)" stroke-width="5"/>
-        <circle cx="1205" cy="750" r="6" fill="var(--ink)"/>
-      </g>
-
-      <!-- ========== 右侧浅黄楼 ========== -->
-      <g class="hotspot" data-goto="#journal" data-label="随笔" data-sub="写在墙上的话">
-        <title>点一下，去随笔区</title>
-        <rect x="1272" y="486" width="168" height="324" fill="var(--sand)" stroke="var(--ink)" stroke-width="6"/>
-        <use href="#win" x="1330" y="566"/>
-        <use href="#win" x="1330" y="668"/>
-      </g>
-
-      <!-- ========== 街上的角色 ========== -->
-      <g transform="translate(944,708)">
-        <ellipse cx="0" cy="72" rx="30" ry="6" fill="var(--ink)" opacity="0.14"/>
-        <path d="M-16 70 V26 M16 70 V26" stroke="var(--ink)" stroke-width="7" stroke-linecap="round"/>
-        <path d="M-20 28 h40 v-30 h-40 z" fill="var(--pink)" stroke="var(--ink)" stroke-width="5"/>
-        <circle cx="0" cy="-16" r="21" fill="var(--tan)" stroke="var(--ink)" stroke-width="5"/>
-        <circle cx="-7" cy="-18" r="3.6" fill="var(--ink)"/>
-        <circle cx="7" cy="-18" r="3.6" fill="var(--ink)"/>
-        <path d="M-8 -8 q8 8 16 0" stroke="var(--ink)" stroke-width="4" fill="none" stroke-linecap="round"/>
-      </g>
-
-      <!-- ========== 黄色公交（会沿线开过） ========== -->
-      <g class="drive">
-        <g class="bob">
-          <ellipse cx="560" cy="800" rx="290" ry="12" fill="var(--ink)" opacity="0.12"/>
-          <path d="M300 700 q0 -62 62 -62 h300 q74 0 96 62 l22 62 q6 18 -14 18 H318 q-24 0 -18 -22 Z"
-                fill="var(--bus)" stroke="var(--ink)" stroke-width="6"/>
-          <path d="M300 700 h520" stroke="var(--ink)" stroke-width="5"/>
-          <g fill="var(--glass)" stroke="var(--ink)" stroke-width="5">
-            <rect x="336" y="662" width="104" height="66" rx="12"/>
-            <rect x="462" y="662" width="104" height="66" rx="12"/>
-            <rect x="588" y="662" width="104" height="66" rx="12"/>
-          </g>
-          <g>
-            <circle cx="388" cy="694" r="20" fill="var(--teal-light)" stroke="var(--ink)" stroke-width="5"/>
-            <circle cx="381" cy="691" r="3.4" fill="var(--ink)"/>
-            <circle cx="395" cy="691" r="3.4" fill="var(--ink)"/>
-            <path d="M381 701 q7 6 14 0" stroke="var(--ink)" stroke-width="3.6" fill="none" stroke-linecap="round"/>
-            <circle cx="514" cy="694" r="20" fill="var(--tan)" stroke="var(--ink)" stroke-width="5"/>
-            <circle cx="507" cy="691" r="3.4" fill="var(--ink)"/>
-            <circle cx="521" cy="691" r="3.4" fill="var(--ink)"/>
-            <path d="M507 701 q7 6 14 0" stroke="var(--ink)" stroke-width="3.6" fill="none" stroke-linecap="round"/>
-          </g>
-          <circle cx="836" cy="726" r="15" fill="var(--yellow)" stroke="var(--ink)" stroke-width="5"/>
-          <g fill="var(--ink)">
-            <circle cx="404" cy="778" r="36"/>
-            <circle cx="700" cy="778" r="36"/>
-          </g>
-          <g fill="var(--tan)">
-            <circle cx="404" cy="778" r="13"/>
-            <circle cx="700" cy="778" r="13"/>
-          </g>
-        </g>
-        <g fill="var(--paper)" opacity="0.9">
-          <circle class="puff" cx="300" cy="712" r="13"/>
-          <circle class="puff puff-2" cx="300" cy="712" r="11"/>
-          <circle class="puff puff-3" cx="300" cy="712" r="9"/>
-        </g>
-      </g>
-
-      <!-- ========== 小船与货箱 ========== -->
-      <g class="bob-slow">
-        <path d="M986 744 H1344 L1306 800 H1024 Z" fill="var(--tan)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round"/>
-        <path d="M1010 744 H1320" stroke="var(--pink)" stroke-width="12" stroke-linecap="round"/>
-        <path d="M1150 744 V676" stroke="var(--ink)" stroke-width="6"/>
-        <path d="M1150 676 l46 12 -46 14 z" fill="var(--pink)" stroke="var(--ink)" stroke-width="5" stroke-linejoin="round"/>
-        <g stroke="var(--ink)" stroke-width="5" stroke-linejoin="round">
-          <rect x="1046" y="700" width="46" height="44" fill="var(--brown)"/>
-          <rect x="1096" y="700" width="46" height="44" fill="var(--yellow)"/>
-          <rect x="1071" y="656" width="46" height="44" fill="var(--pink)"/>
-          <rect x="1196" y="700" width="46" height="44" fill="var(--teal-light)"/>
-        </g>
-        <g stroke="var(--ink)" stroke-width="3.4" opacity="0.7">
-          <path d="M1046 700 l46 44 M1092 700 l-46 44"/>
-          <path d="M1096 700 l46 44 M1142 700 l-46 44"/>
-        </g>
-        <g transform="translate(1250,700)">
-          <circle cx="0" cy="-26" r="19" fill="var(--tan)" stroke="var(--ink)" stroke-width="5"/>
-          <circle cx="-6" cy="-28" r="3.4" fill="var(--ink)"/>
-          <circle cx="6" cy="-28" r="3.4" fill="var(--ink)"/>
-          <path d="M-7 -18 q7 7 14 0" stroke="var(--ink)" stroke-width="3.6" fill="none" stroke-linecap="round"/>
-          <path d="M-16 44 V-8 h32 v52" fill="var(--teal-dark)" stroke="var(--ink)" stroke-width="5" stroke-linejoin="round"/>
-        </g>
-      </g>
-
-      <!-- ========== 海浪（三层视差） ========== -->
-      <g transform="translate(0,712)" opacity="0.85">
-        <g class="drift-slower">
-          <use href="#waveShape" x="0" fill="var(--teal-light)"/>
-          <use href="#waveShape" x="1440" fill="var(--teal-light)"/>
-        </g>
-      </g>
-      <g transform="translate(0,742)">
-        <g class="drift-slow">
-          <use href="#waveShape" x="0" fill="var(--teal)"/>
-          <use href="#waveShape" x="1440" fill="var(--teal)"/>
-        </g>
-      </g>
-      <g transform="translate(0,772)">
-        <g class="drift-slow" style="animation-duration:30s">
-          <use href="#waveShape" x="0" fill="var(--teal-dark)" stroke="var(--ink)" stroke-width="5"/>
-          <use href="#waveShape" x="1440" fill="var(--teal-dark)" stroke="var(--ink)" stroke-width="5"/>
-        </g>
-      </g>
-
-      <!-- 鸟 -->
-      <g stroke="var(--ink)" stroke-width="4" fill="none" stroke-linecap="round">
-        <path d="M168 198 q14 -12 28 0 q14 -12 28 0"/>
-        <path d="M248 160 q11 -9 22 0 q11 -9 22 0"/>
-      </g>
-    </svg>
-  </div>
-
-  <div class="scene__grain" aria-hidden="true"></div>
-
-  <!-- 顶栏 -->
-  <div class="topbar">
-    <a class="logo" href="index.html">
-      SYB
-      <span class="sr-only">Sean 的小街区，回到首页</span>
+<header class="site-header">
+  <div class="wrap site-header__in">
+    <a class="brand" href="index.html">
+      <svg class="brand__mark" width="22" height="22" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#faf9f5"/><g transform="matrix(0.046195,0,0,0.046195,-7.12,-9.26)"><path fill="#d97757" d="M 665 300 L 420 300 C 330 300 265 345 265 425 C 265 495 315 530 390 550 L 555 595 C 610 610 635 630 635 665 C 635 705 600 730 540 730 L 335 730 L 285 800 L 555 800 C 655 800 730 750 730 665 C 730 590 680 555 605 535 L 430 488 C 375 473 360 450 360 425 C 360 395 385 370 435 370 L 615 370 Z"/></g></svg>
+      Sean 工具库
+      <span class="sr-only">回到首页</span>
     </a>
 
-    <div class="topbar__left">
-      <time class="clock" role="timer" aria-live="off" aria-label="当前北京时间" title="北京时间 · UTC+8">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.4V12l3.2 2"/></svg>
-        <b data-bj-time>--:--:--</b>
-        <span class="clock__zone">北京时间</span>
-      </time>
-
-      <p class="countdown" data-countdown hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="3"/><path d="M8 3v4M16 3v4M3.5 10.5h17"/></svg>
-        <span data-cd-text>—</span>
-      </p>
-    </div>
-
-    <button class="music" type="button" id="music-btn" aria-pressed="false" aria-label="打开背景音乐" title="背景音乐：关（点一下播放）">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M9 18V6l10-2v12"/>
-        <circle cx="6.5" cy="18" r="2.5"/>
-        <circle cx="16.5" cy="16" r="2.5"/>
-        <path class="music__slash" d="M4.5 4.5l15 15"/>
-      </svg>
-    </button>
-
-    <nav class="ih__nav" aria-label="栏目导航">
-      <a class="ih__link" href="blog/index.html">随笔</a>
-      <a class="ih__link" href="tools.html">工具</a>
-      <a class="ih__link" href="works.html">作品</a>
+    <nav class="nav" aria-label="主导航">
+      <a class="nav__link" href="#journal">随笔</a>
+      <a class="nav__link" href="#tools">工具</a>
+      <a class="nav__link" href="#contact">联系</a>
     </nav>
 
-    <div class="topbar__right">
-      <div class="palette" role="radiogroup" aria-label="配色主题">
-        <button class="palette__dot" type="button" role="radio" aria-checked="true" data-palette-set="day" aria-label="白天" title="白天" style="background:#dce4f5"></button>
-        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="dusk" aria-label="黄昏" title="黄昏" style="background:#c98a86"></button>
-        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="night" aria-label="夜晚" title="夜晚" style="background:#131c44"></button>
-        <button class="palette__dot" type="button" role="radio" aria-checked="false" data-palette-set="print" aria-label="复古印刷" title="复古印刷" style="background:#f0ead9"></button>
-      </div>
+    <div class="site-header__right">
+      <time class="clock" role="timer" aria-live="off" aria-label="当前北京时间" title="北京时间 · UTC+8">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.4V12l3.2 2"/></svg>
+        <b data-bj-time>--:--:--</b>
+      </time>
+
+      <!-- 下一个法定节假日。脚本没跑起来就一直 hidden，不会露出半个空壳 -->
+      <p class="countdown" data-countdown hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="3"/><path d="M8 3v4M16 3v4M3.5 10.5h17"/></svg>
+        <span data-cd-text>—</span>
+      </p>
+
+      <button class="icon-btn music" type="button" id="music-btn" aria-pressed="false" aria-label="打开背景音乐" title="背景音乐：关（点一下播放）">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 18V6l10-2v12"/>
+          <circle cx="6.5" cy="18" r="2.5"/>
+          <circle cx="16.5" cy="16" r="2.5"/>
+          <path class="slash" d="M4.5 4.5l15 15"/>
+        </svg>
+      </button>
+
       <button class="icon-btn" type="button" id="menu-open" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu">
         <span class="sr-only">打开导航菜单</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
-          <path d="M4 7h16M4 12h16M4 17h16"/>
-        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg>
       </button>
     </div>
   </div>
-
-  <!-- Hero 文案 -->
-  <div class="hero">
-    <p class="hero__kicker">Sean’s Block</p>
-    <p class="hero__hi">Hello, 欢迎来到</p>
-    <h1 class="hero__title">Sean 的<em>小街区</em></h1>
-    <a class="hero__link" href="#about"><i aria-hidden="true"></i> 逛逛这条街</a>
-  </div>
 </header>
+
+<main id="main">
+
+  <!-- ================= Hero ================= -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero__in">
+        <div class="hero__lead">
+          <span class="eyebrow">
+            <svg class="spike" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/></svg>
+            About
+          </span>
+          <h1 class="hero__title">把想法<br>做成<em>能跑的东西</em></h1>
+          <p class="hero__lede">我是Sean，这是一个个人博客与工具集合，主要用于记录和分享我在学习、工作和生活中的一些心得体会，同时也展示我平时开发的一些实用小工具。希望它既能沉淀个人思考，也能为有需要的朋友提供一点参考和便利，欢迎交流指正。</p>
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#journal">读随笔</a>
+            <a class="btn btn--outline" href="#tools">玩工具</a>
+          </div>
+        </div>
+
+        <aside class="hero__panel" aria-labelledby="updates-title">
+          <div class="hero__panel-head">
+            <h2 class="hero__panel-title" id="updates-title">最近更新</h2>
+            <span class="hero__panel-tag"><!-- updated-at -->2026-09-29<!-- /updated-at --></span>
+          </div>
+
+          <ul class="updates">
+            <!-- updates:start —— 这一段由 tools/build.mjs 按 blog/posts/ 与工具清单自动生成，不要手改 -->
+          <li class="update">
+            <time datetime="2026-09-29">09-29</time>
+            <span>
+              <b><a href="blog/untitled-2026-09-29.html">hahhahaha</a></b>
+              <small>随笔 · 2026-09-29</small>
+            </span>
+          </li>
+          <li class="update">
+            <time datetime="2026-01-18">01-18</time>
+            <span>
+              <b><a href="tools.html#doodle">涂鸦板</a></b>
+              <small>工具 · 2026-01-18</small>
+            </span>
+          </li>
+          <li class="update">
+            <time datetime="2026-01-12">01-12</time>
+            <span>
+              <b><a href="tools.html#snake">贪吃蛇</a></b>
+              <small>工具 · 2026-01-12</small>
+            </span>
+          </li>
+        <!-- updates:end -->
+          </ul>
+        </aside>
+      </div>
+
+      <div class="hero__stats">
+        <div class="hero__stat"><b><!-- stat:posts -->1<!-- /stat:posts --></b><span>篇随笔</span></div>
+        <div class="hero__stat"><b>3</b><span>个纯前端小工具</span></div>
+        <div class="hero__stat"><b>0</b><span>个第三方依赖</span></div>
+        <div class="hero__stat"><b>0</b><span>张图片素材</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 随笔 ================= -->
+  <section class="section" id="journal">
+    <div class="wrap">
+      <div class="section__head">
+        <span class="eyebrow">
+          <svg class="spike" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/></svg>
+          Journal
+        </span>
+        <h2 class="section__title">写下来才算想清楚</h2>
+        <p class="section__lede">关于界面设计、前端实现与可访问性。更新很慢，因为每篇我都希望能给出一个可以被验证的结论。</p>
+      </div>
+
+      <div class="rows">
+        <!-- journal:start —— 这一段由 tools/build.mjs 按 blog/posts/ 自动生成，不要手改 -->
+        <a class="row" href="blog/untitled-2026-09-29.html">
+          <time datetime="2026-09-29">2026-09-29</time>
+          <span>
+            <b>hahhahaha</b>
+            <p>hahahaha</p>
+          </span>
+          <span class="row__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
+        </a>
+        <!-- journal:end -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 工具 ================= -->
+  <section class="section section--soft" id="tools">
+    <div class="wrap">
+      <div class="section__head">
+        <span class="eyebrow">
+          <svg class="spike" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/></svg>
+          Tools
+        </span>
+        <h2 class="section__title">三个小工具</h2>
+        <p class="section__lede">没有账号、没有网络请求、没打算变现。打开就能用，关掉就走。</p>
+      </div>
+
+      <div class="grid grid--3">
+        <a class="tile" href="tools.html#doodle">
+          <span class="tile__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4.5-1.2L19 8.3a2.2 2.2 0 0 0-3.1-3.1L5.3 15.7z"/><path d="M14.6 6.6l2.8 2.8"/></svg>
+          </span>
+          <h3>涂鸦板</h3>
+          <p>按住拖动就能画，可以调笔粗、换颜色，画完导出一张 PNG。</p>
+          <span class="tile__foot"><span class="tag tag--coral">Canvas 2D</span></span>
+        </a>
+        <a class="tile" href="tools.html#snake">
+          <span class="tile__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17V9a4 4 0 0 1 8 0v6a4 4 0 0 0 8 0"/><circle cx="7" cy="19" r="1.6"/></svg>
+          </span>
+          <h3>贪吃蛇</h3>
+          <p>方向键或 WASD，手机用屏幕上的方向键。最高分记在本地。</p>
+          <span class="tile__foot"><span class="tag tag--coral">键盘可玩</span></span>
+        </a>
+        <a class="tile" href="tools.html#life">
+          <span class="tile__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="1.6"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.6"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.6"/><path d="M17.2 13.5v7.5M13.5 17.2h7.5" stroke-linecap="round"/></svg>
+          </span>
+          <h3>生命游戏</h3>
+          <p>在网格上画细胞，松手后按播放，看它自己长起来。</p>
+          <span class="tile__foot"><span class="tag tag--coral">Conway</span></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 联系 ================= -->
+  <section class="section" id="contact">
+    <div class="wrap">
+      <div class="band band--coral">
+        <h2 class="section__title" style="max-width:18em">一起做点东西，或者聊聊代码</h2>
+        <p style="max-width:34em;margin:16px 0 28px">你也在学 Vibe Coding 想找人搭伴，或者发现这个站哪里写错了，发封邮件就行。</p>
+        <div class="hero__actions">
+          <a class="btn" href="mailto:shaoyibang@163.com">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3.8 7.2 8.2 5.6 8.2-5.6"/></svg>
+            shaoyibang@163.com
+          </a>
+          <a class="btn" href="https://github.com/shaoyibang" target="_blank" rel="noopener me">GitHub</a>
+          <a class="btn" href="https://space.bilibili.com/66916738" target="_blank" rel="noopener me">哔哩哔哩</a>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <div class="footer__in">
+          <p>© 2026 邵乙梆 · Sean 的工具库</p>
+          <p class="footer__links">
+            <a href="blog/index.html">随笔</a>
+            <a href="tools.html">工具</a>
+            <a href="https://github.com/shaoyibang" target="_blank" rel="noopener me">GitHub</a>
+            <a href="https://x.com/wulabulafuo" target="_blank" rel="noopener me">X</a>
+          </p>
+        </div>
+      </footer>
+    </div>
+  </section>
+
+</main>
 
 <!-- ================= 编号菜单 ================= -->
 <div class="menu" id="menu" data-open="false" role="dialog" aria-modal="true" aria-label="站点导航">
   <div class="menu__card" role="document">
     <div class="menu__head">
-      <span class="menu__badge"><i aria-hidden="true"></i> SEAN·BLOCK</span>
+      <span class="menu__badge">
+        <svg class="spike" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/></svg>
+        Sean
+      </span>
       <button class="icon-btn menu__close" type="button" id="menu-close">
         <span class="sr-only">关闭菜单</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true">
-          <path d="M6 6l12 12M18 6L6 18"/>
-        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
     </div>
 
     <ul class="menu__list">
-      <li><a class="menu__item" href="#top">
-              <span class="menu__num">01</span><span class="menu__label">首页</span><span class="menu__en">Home</span>
-              <span class="menu__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
-      </a></li>
-      <li><a class="menu__item" href="#about">
-              <span class="menu__num">02</span><span class="menu__label">关于我</span><span class="menu__en">About</span>
-              <span class="menu__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
-      </a></li>
       <li><a class="menu__item" href="blog/index.html">
-              <span class="menu__num">03</span><span class="menu__label">随笔</span><span class="menu__en">Journal</span>
-              <span class="menu__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+        <span class="menu__num">01</span><span class="menu__label">随笔</span><span class="menu__en">Journal</span>
+        <span class="menu__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
       </a></li>
       <li><a class="menu__item" href="tools.html">
-              <span class="menu__num">04</span><span class="menu__label">工具</span><span class="menu__en">Tools</span>
-              <span class="menu__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
-      </a></li>
-      <li><a class="menu__item" href="works.html">
-              <span class="menu__num">05</span><span class="menu__label">作品</span><span class="menu__en">Works</span>
-              <span class="menu__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+        <span class="menu__num">02</span><span class="menu__label">工具</span><span class="menu__en">Tools</span>
+        <span class="menu__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
       </a></li>
       <li><a class="menu__item" href="#contact">
-              <span class="menu__num">06</span><span class="menu__label">联系</span><span class="menu__en">Contact</span>
-              <span class="menu__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+        <span class="menu__num">03</span><span class="menu__label">联系</span><span class="menu__en">Contact</span>
+        <span class="menu__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
       </a></li>
     </ul>
 
@@ -376,229 +265,12 @@
         </a>
       </div>
       <a class="menu__mail" href="mailto:shaoyibang@163.com">shaoyibang@163.com</a>
-      <p class="menu__copy">© 2026 邵乙梆 · 手绘与手写代码</p>
+      <p class="menu__copy">© 2026 邵乙梆 · Sean 的工具库</p>
     </div>
   </div>
 </div>
 
-<!-- 建筑招牌气泡 -->
-<p class="sign" id="sign" role="status" aria-live="polite"></p>
-
-<main id="main">
-
-  <!-- ================= 关于我 ================= -->
-  <section class="section" id="about">
-    <div class="wrap">
-      <div class="panel about">
-        <div>
-          <span class="section__eyebrow"><i aria-hidden="true"></i> About</span>
-          <h2 class="section__title">King of the block</h2>
-          <p class="section__lede">我是邵乙梆，网名 Sean。此前从事 Java 开发，如今正以 Vibe Coding 的方式边做边学，向全栈靠拢——这个站点，就是我的练习场。</p>
-          <ul class="about__list">
-            <li>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1 10-10a2.1 2.1 0 0 0-3-3L5 16z"/></svg>
-              <span><b>不进则退</b>：AI 浪潮之下，唯有持续迭代，才能不被时代淘汰。</span>
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="3"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"/></svg>
-              <span><b>强执行力</b>：浪潮不等人，执行力就是最好的适应力。</span>
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M5 8l7-5 7 5"/></svg>
-              <span><b>结果至上</b>：没人在意过程，世界只看结果。</span>
-            </li>
-          </ul>
-        </div>
-        <div class="about__card">
-          <svg viewBox="0 0 200 200" role="img" aria-label="邵乙梆的卡通头像插画">
-            <circle cx="100" cy="100" r="92" fill="var(--teal-light)" stroke="var(--ink)" stroke-width="6"/>
-            <path d="M20 168 q30 -46 80 -46 t80 46 a92 92 0 0 1 -160 0 z" fill="var(--teal-dark)" stroke="var(--ink)" stroke-width="6"/>
-            <circle cx="100" cy="92" r="52" fill="var(--tan)" stroke="var(--ink)" stroke-width="6"/>
-            <circle cx="82" cy="88" r="6.5" fill="var(--ink)"/>
-            <circle cx="118" cy="88" r="6.5" fill="var(--ink)"/>
-            <path d="M80 110 q20 18 40 0" stroke="var(--ink)" stroke-width="6" fill="none" stroke-linecap="round"/>
-            <path d="M50 74 q28 -42 62 -30 q30 10 34 34" fill="none" stroke="var(--ink)" stroke-width="12" stroke-linecap="round"/>
-            <circle cx="160" cy="52" r="18" fill="var(--yellow)" stroke="var(--ink)" stroke-width="5"/>
-          </svg>
-          <b>邵乙梆 / Sean</b>
-          <span>全栈开发者 · Vibe Coding · 郑州</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= 随笔 ================= -->
-  <section class="section" id="journal">
-    <div class="wrap">
-      <span class="section__eyebrow"><i aria-hidden="true"></i> Journal</span>
-      <h2 class="section__title">写在墙上的话</h2>
-      <p class="section__lede" style="margin-bottom:26px">更新很慢，因为每篇我都希望能给出一个可以被验证的结论。</p>
-
-      <div class="rows">
-        <a class="row" href="blog/bento-layout.html">
-          <time datetime="2026-02-08">2026-02-08</time>
-          <span>
-            <b>Bento 网格为什么这么耐看</b>
-            <p>它同时解决了内容不等量、注意力不均匀，以及作者总想再塞一点。</p>
-          </span>
-          <span class="row__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
-        </a>
-        <a class="row" href="blog/toys-that-teach.html">
-          <time datetime="2026-01-21">2026-01-21</time>
-          <span>
-            <b>做玩具，是检验设计直觉最快的方式</b>
-            <p>一个玩具没有需求文档、没有老板、也没有借口。</p>
-          </span>
-          <span class="row__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
-        </a>
-        <a class="row" href="blog/no-js-first.html">
-          <time datetime="2026-01-04">2026-01-04</time>
-          <span>
-            <b>先让它不用 JS 也能用</b>
-            <p>不是复古情怀，而是最便宜的性能预算和最强的健壮性测试。</p>
-          </span>
-          <span class="row__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= 工具 ================= -->
-  <section class="section" id="tools">
-    <div class="wrap">
-      <span class="section__eyebrow"><i aria-hidden="true"></i> Tools</span>
-      <h2 class="section__title">街角的工具箱</h2>
-      <p class="section__lede" style="margin-bottom:34px">没有账号、没有网络请求、没打算变现。打开就能用，关掉就走。</p>
-      <div class="tools">
-        <a class="toy" href="tools.html#doodle">
-          <svg viewBox="0 0 48 48" fill="none" stroke="var(--ink)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 40l8-2 20-20a4.2 4.2 0 0 0-6-6L10 32z" fill="var(--yellow)"/><path d="M29 13l6 6"/></svg>
-          <b>涂鸦板</b>
-          <span>按住拖动就能画，画完导出一张 PNG。</span>
-        </a>
-        <a class="toy" href="tools.html#snake">
-          <svg viewBox="0 0 48 48" fill="none" stroke="var(--ink)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 34V18a6 6 0 0 1 12 0v12a6 6 0 0 0 12 0V14"/><circle cx="14" cy="37" r="3.4" fill="var(--pink)"/></svg>
-          <b>贪吃蛇</b>
-          <span>方向键或 WASD，手机用屏幕方向键。</span>
-        </a>
-        <a class="toy" href="tools.html#life">
-          <svg viewBox="0 0 48 48" fill="none" stroke="var(--ink)" stroke-width="3.4" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="15" height="15" rx="3" fill="var(--teal)"/><rect x="27" y="6" width="15" height="15" rx="3" fill="var(--tan)"/><rect x="6" y="27" width="15" height="15" rx="3" fill="var(--tan)"/><path d="M34.5 27v15M27 34.5h15" stroke-linecap="round"/></svg>
-          <b>生命游戏</b>
-          <span>在网格上画细胞，看它自己长起来。</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- 波浪分隔 -->
-  <svg class="wave-div" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0 40 q90 -40 180 0 t180 0 t180 0 t180 0 t180 0 t180 0 t180 0 t180 0 V120 H0 Z" fill="var(--teal)"/>
-    <path d="M0 72 q90 -36 180 0 t180 0 t180 0 t180 0 t180 0 t180 0 t180 0 t180 0 V120 H0 Z" fill="var(--teal-dark)"/>
-  </svg>
-
-  <!-- ================= 作品 ================= -->
-  <section class="section" id="works" style="background:var(--teal);padding-bottom:clamp(70px,11vw,140px)">
-    <div class="wrap">
-      <span class="section__eyebrow" style="color:var(--yellow)"><i aria-hidden="true" style="background:var(--yellow)"></i> Works</span>
-      <h2 class="section__title" style="color:#fff;text-shadow:4px 4px 0 rgba(10,16,36,.32)">这条街上现在有什么</h2>
-      <p class="section__lede" style="color:rgba(255,255,255,.94);margin-bottom:36px">还没有拿得出手的商业项目，所以这里只放真实存在的东西——本站、三个小工具，和正在啃的源码。</p>
-
-      <div class="cards">
-        <article class="work">
-          <div class="work__art">
-            <svg viewBox="0 0 360 200" role="img" aria-label="本站布局的抽象插画">
-              <rect width="360" height="200" fill="var(--sky)"/>
-              <rect x="22" y="24" width="150" height="152" rx="14" fill="var(--teal)" stroke="var(--ink)" stroke-width="5"/>
-              <rect x="186" y="24" width="72" height="72" rx="12" fill="var(--yellow)" stroke="var(--ink)" stroke-width="5"/>
-              <rect x="272" y="24" width="66" height="72" rx="12" fill="var(--tan)" stroke="var(--ink)" stroke-width="5"/>
-              <rect x="186" y="110" width="152" height="66" rx="12" fill="var(--pink)" stroke="var(--ink)" stroke-width="5"/>
-              <path d="M60 76 h74 M60 100 h50" stroke="var(--tan)" stroke-width="7" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <h3>Sean 的小街区</h3>
-          <p>你正在看的这个站点：整页手绘 SVG、四套配色、零框架零依赖，一棵一棵把建筑画出来的。</p>
-          <div class="work__tags"><span class="tag tag--teal">手写 SVG</span><span class="tag">无框架</span></div>
-        </article>
-
-        <article class="work">
-          <div class="work__art">
-            <svg viewBox="0 0 360 200" role="img" aria-label="工具实验室的抽象插画">
-              <rect width="360" height="200" fill="var(--sky)"/>
-              <rect x="40" y="66" width="280" height="110" rx="54" fill="var(--yellow)" stroke="var(--ink)" stroke-width="6"/>
-              <path d="M112 96 v50 M87 121 h50" stroke="var(--ink)" stroke-width="9" stroke-linecap="round"/>
-              <circle cx="248" cy="106" r="12" fill="var(--pink)" stroke="var(--ink)" stroke-width="5"/>
-              <circle cx="284" cy="138" r="12" fill="var(--teal)" stroke="var(--ink)" stroke-width="5"/>
-              <rect x="150" y="30" width="60" height="40" rx="10" fill="var(--tan)" stroke="var(--ink)" stroke-width="5"/>
-              <path d="M180 70 V96" stroke="var(--ink)" stroke-width="6"/>
-            </svg>
-          </div>
-          <h3>工具实验室</h3>
-          <p>涂鸦板、贪吃蛇、生命游戏。三个纯 Canvas 的小玩意，用来练指针事件、帧循环和状态管理。</p>
-          <div class="work__tags"><span class="tag tag--pink">Canvas</span><span class="tag">JavaScript</span></div>
-        </article>
-
-        <article class="work">
-          <div class="work__art">
-            <svg viewBox="0 0 360 200" role="img" aria-label="阅读源码的抽象插画">
-              <rect width="360" height="200" fill="var(--sky)"/>
-              <circle cx="308" cy="46" r="26" fill="var(--sun)"/>
-              <rect x="26" y="60" width="120" height="140" fill="var(--pink)" stroke="var(--ink)" stroke-width="5"/>
-              <rect x="46" y="86" width="34" height="30" fill="var(--win)" stroke="var(--ink)" stroke-width="4"/>
-              <rect x="92" y="86" width="34" height="30" fill="var(--win)" stroke="var(--ink)" stroke-width="4"/>
-              <rect x="46" y="132" width="34" height="30" fill="var(--win)" stroke="var(--ink)" stroke-width="4"/>
-              <rect x="92" y="132" width="34" height="30" fill="var(--win)" stroke="var(--ink)" stroke-width="4"/>
-              <rect x="160" y="30" width="174" height="170" fill="var(--tan)" stroke="var(--ink)" stroke-width="5"/>
-              <rect x="184" y="120" width="26" height="58" fill="var(--teal)" stroke="var(--ink)" stroke-width="4"/>
-              <rect x="222" y="92" width="26" height="86" fill="var(--yellow)" stroke="var(--ink)" stroke-width="4"/>
-              <rect x="260" y="140" width="26" height="38" fill="var(--pink)" stroke="var(--ink)" stroke-width="4"/>
-              <path d="M184 104 L248 62 L300 86" fill="none" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <h3>正在啃的开源项目</h3>
-          <p>xxl-job（分布式任务调度）和 next-ai-draw-io（AI 画流程图）——fork 下来读源码，边读边改，还没到能写进作品集的程度。</p>
-          <div class="work__tags"><span class="tag tag--yellow">在读源码</span><span class="tag">Java / Next.js</span></div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <svg class="wave-div" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true" style="background:var(--teal);transform:scaleY(-1)">
-    <path d="M0 40 q90 -40 180 0 t180 0 t180 0 t180 0 t180 0 t180 0 t180 0 t180 0 V120 H0 Z" fill="var(--teal-dark)"/>
-    <path d="M0 72 q90 -36 180 0 t180 0 t180 0 t180 0 t180 0 t180 0 t180 0 t180 0 V120 H0 Z" fill="var(--page)"/>
-  </svg>
-
-  <!-- ================= 联系 ================= -->
-  <section class="section" id="contact" style="padding-top:0">
-    <div class="wrap">
-      <div class="contact">
-        <svg viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true"
-             style="position:absolute;left:0;right:0;bottom:0;width:100%;height:80px;opacity:.5">
-          <path d="M0 60 q90 -44 180 0 t180 0 t180 0 t180 0 t180 0 t180 0 t180 0 t180 0 V160 H0 Z" fill="var(--teal-dark)"/>
-        </svg>
-        <div style="position:relative">
-          <h2>要不要来街上坐坐？</h2>
-          <p>想一起做点东西、聊聊代码，或者你也在学 Vibe Coding 想找人搭伴，发封邮件就行。</p>
-          <div class="contact__actions">
-            <a class="btn btn--yellow" href="mailto:shaoyibang@163.com">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3.8 7.2 8.2 5.6 8.2-5.6"/></svg>
-              shaoyibang@163.com
-            </a>
-            <a class="btn" href="https://github.com/shaoyibang" target="_blank" rel="noopener me">GitHub</a>
-            <a class="btn" href="https://space.bilibili.com/66916738" target="_blank" rel="noopener me">哔哩哔哩</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <footer class="footer">
-    <div class="wrap">
-      <p>© 2026 邵乙梆 · 整页手绘 SVG，没用一张图片素材</p>
-      <p class="mono">按 M 打开菜单 · Esc 关闭 · 右上角圆点换配色</p>
-    </div>
-  </footer>
-</main>
-
 <audio id="bgm" src="music.mp3" loop preload="none"></audio>
-<script src="assets/js/illustrated.js"></script>
+<script src="assets/js/site.js"></script>
 </body>
 </html>

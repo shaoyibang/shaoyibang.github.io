@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>写随笔 · Sean 的工具库</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23faf9f5'/%3E%3Cg stroke='%23cc785c' stroke-width='3.4' stroke-linecap='round'%3E%3Cpath d='M16 6v20M6 16h20M9 9l14 14M23 9L9 23'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&family=Inter:opsz,wght@14..32,100..900&family=JetBrains+Mono:wght@300..600&family=Noto+Serif+SC:wght@300..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/site.css">
+<link rel="stylesheet" href="editor.css">
+</head>
+<body>
+
+<header class="bar">
+  <span class="bar__brand">
+    <svg class="spike" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/></svg>
+    写随笔
+  </span>
+
+  <button class="btn btn--sm btn--primary" type="button" id="save">保存</button>
+  <a class="btn btn--sm btn--outline" href="/site/index.html" target="_blank" rel="noopener">打开主页 ↗</a>
+  <a class="btn btn--sm btn--outline" href="/site/blog/index.html" target="_blank" rel="noopener">随笔列表 ↗</a>
+  <button class="btn btn--sm btn--outline" type="button" id="build">重新生成页面</button>
+  <button class="btn btn--sm btn--outline" type="button" id="upload">插入图片</button>
+
+  <span class="bar__spacer"></span>
+  <button class="btn btn--sm btn--danger" type="button" id="delete">删除这篇</button>
+  <span class="bar__status" id="status">就绪</span>
+</header>
+
+<div class="main">
+
+  <!-- 左：文章列表 -->
+  <nav class="pane pane--list" aria-label="文章列表">
+    <div class="pane__head">随笔（blog/posts）</div>
+    <div class="list" id="list"></div>
+    <button class="btn btn--sm btn--outline list__new" type="button" id="new">＋ 新建一篇</button>
+  </nav>
+
+  <!-- 中：源码与元信息 -->
+  <section class="pane pane--edit" aria-label="编辑">
+    <div class="pane__head">正文（Markdown）</div>
+
+    <div class="meta">
+      <div class="field">
+        <label for="f-title">标题</label>
+        <input id="f-title" type="text" placeholder="文章标题">
+      </div>
+      <div class="field">
+        <label for="f-date">日期</label>
+        <input id="f-date" type="date">
+      </div>
+      <div class="field field--full">
+        <label for="f-summary">摘要<small>（列表页显示，也用作 meta description）</small></label>
+        <input id="f-summary" type="text" placeholder="一句话说清这篇讲什么">
+      </div>
+      <div class="field">
+        <label for="f-cats">分类</label>
+        <input id="f-cats" type="text" placeholder="例如：布局 / CSS Grid">
+      </div>
+      <div class="field">
+        <label for="f-slug">文件名<small>（决定网址 blog/&lt;名字&gt;.html）</small></label>
+        <input id="f-slug" type="text" placeholder="my-post">
+      </div>
+    </div>
+
+    <div class="tools" role="toolbar" aria-label="格式">
+      <button type="button" data-wrap="**" title="粗体（b）">B</button>
+      <button type="button" data-wrap="<strong>" data-wrap-close="</strong>" title="重强调（strong）">S</button>
+      <button type="button" data-wrap="*" title="斜体"><em>I</em></button>
+      <button type="button" data-wrap="`" title="行内代码">&lt;/&gt;</button>
+      <span class="tools__sep"></span>
+      <button type="button" data-line="## " title="二级标题">H2</button>
+      <button type="button" data-line="### " title="三级标题">H3</button>
+      <span class="tools__sep"></span>
+      <button type="button" data-line="- " title="无序列表">• 列表</button>
+      <button type="button" data-line="1. " title="有序列表">1. 列表</button>
+      <button type="button" data-line="> " title="引用">引用</button>
+      <span class="tools__sep"></span>
+      <button class="tools__wide" type="button" data-link title="链接">链接</button>
+      <button class="tools__wide" type="button" data-code title="代码块">代码块</button>
+      <button class="tools__wide" type="button" data-hr title="分隔线">分隔线</button>
+    </div>
+
+    <textarea class="editor" id="editor" spellcheck="false"
+              placeholder="在这里写正文。&#10;&#10;支持：## 标题、**粗体**、`行内代码`、- 列表、> 引用、``` 代码块、![](图片)&#10;图片可以直接拖进来或粘贴。"></textarea>
+  </section>
+
+  <!-- 右：预览 -->
+  <section class="pane pane--preview" aria-label="预览">
+    <div class="pane__head">预览</div>
+    <div class="preview">
+      <div class="preview__inner" id="preview">
+        <p class="preview__placeholder">选中或新建一篇后，这里会显示渲染效果。</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="drop" id="drop">松开鼠标即可插入图片</div>
+<input type="file" id="file" accept="image/*" multiple hidden>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

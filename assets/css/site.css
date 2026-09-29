@@ -1,0 +1,1120 @@
+/* =========================================================================
+   site.css — 「Sean」个人站 · 暖调编辑风（Claude / Anthropic 视觉语言）
+
+   三条主轴：
+   · 暖奶油底色（#faf9f5），不用纯白、不用冷灰
+   · 衬线标题 + 人文无衬线正文，标题 weight 400、负字距
+   · 色块先行、投影稀有：层次靠「奶油 / 深色」两种surface的对比
+
+   原版 Anthropic 的 Copernicus / StyreneB 是商业字体，这里用开源近似：
+   · 标题衬线   EB Garamond + Noto Serif SC   ≈ Copernicus / Tiempos
+   · 正文无衬线 Inter                          ≈ StyreneB
+   · 等宽       JetBrains Mono
+   ========================================================================= */
+
+/* ---------- 1. 设计令牌 ----------
+   数值来源：claude.com 线上 CSS 的 --color-* / --theme-* 令牌（逐字核对）
+   与 anthropic.com 的 Webflow 变量表。社区流传的几份 DESIGN.md 在这个版本
+   里已经过时，下面标注了哪些是实测值、哪些是近似。 */
+:root {
+  /* 品牌色：clay —— 全站唯一的强调色。
+     只用在 logo 星标、文字选中、焦点环、整块珊瑚色带和品牌按钮上；
+     主 CTA 是黑底，不是珊瑚底。 */
+  --primary: #d97757;
+  --primary-hover: #c6613f;
+  --primary-active: #c46849;   /* 实测 --color-clay-dark，同时也是焦点环颜色 */
+  --primary-soft: #f5e2d9;     /* [近似] clay 的浅色底，用于 tag 背景 */
+
+  /* 文字：暖墨色。最深也用 #141413，全站不用纯黑 */
+  --ink: #141413;
+  --body-strong: #30302e;
+  --body: #3d3d3a;
+  --muted: #5e5d59;
+  --muted-soft: #87867f;
+
+  /* 表面：奶油做页面底色，纯白做卡片，深色做产品面板与色带 */
+  --canvas: #faf9f5;
+  --surface-soft: #f5f4ed;
+  --surface-tertiary: #f0eee6;
+  --surface-card: #ffffff;     /* 卡片是白色，比底色"抬起"一档 */
+  --cream-strong: #e8e6dc;
+  --dark: #141413;
+  --dark-elevated: #262624;
+  --dark-soft: #1f1e1d;
+
+  /* 描边：1px 发丝线，实测 --theme-border-* */
+  --hairline: #e8e6dc;
+  --hairline-strong: #d1cfc5;
+  --hairline-soft: #f0eee6;
+
+  --on-dark: #faf9f5;
+  --on-dark-soft: #b0aea5;
+  --on-primary: #ffffff;
+
+  /* 语义色 */
+  --success: #5db872;
+  --warning: #d4a017;
+  --error: #bf4d43;
+  --teal: #629987;
+  --amber: #e8a55a;
+
+  /* 字体：Anthropic Serif / Sans / Mono 是自有字体，公开可用但未授权再分发，
+     所以这里用开源近似。换真字体时只需要改这一处。
+     · Fraunces  —— 暖调高对比过渡衬线，opsz 会自动按字号选光学尺寸，最接近 Anthropic Serif
+     · Noto Serif SC —— 中文衬线；Fraunces 没有中文字形，会自然落到这里
+     · Inter     —— 与 StyreneB 同为屏幕阅读优化的人文无衬线
+     · JetBrains Mono —— anthropic.com 至今仍在用，是唯一的"一方证据"替代 */
+  --font-display: "Fraunces", "Noto Serif SC", "Songti SC", "STSong", Georgia, serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+               "Hiragino Sans GB", "Microsoft YaHei", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* 标题字重：claude.com 的 hero 用 330，比 regular 还轻。
+     字重对比是"反向"的 —— 衬线标题永远不加粗 */
+  --fw-display: 340;
+
+  --tracking-tight: -0.02em;
+  --tracking-snug: -0.01em;
+  --tracking-wide: -0.005em;
+  --tracking-caps: 0.05em;
+
+  /* 圆角：实测 --br-* 。按钮 8px 不是胶囊；胶囊只留给徽章和分段控件 */
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-2xl: 32px;               /* hero 产品面板 */
+  --r-pill: 999px;
+
+  /* 投影：整套语言里几乎没有投影，最重的一层也只有约 4% alpha */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 16px 24px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 24px 48px rgba(20, 20, 19, 0.12);
+
+  /* 动效：长尾缓出，无弹跳、无回弹 */
+  --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --t-fast: 150ms ease;
+  --t-base: 200ms ease;
+
+  /* 布局 */
+  --w-wide: 1192px;
+  --w-text: 72ch;              /* 阅读宽度按字符数算，不写死 px */
+  --pad-x: clamp(20px, 4vw, 64px);
+}
+
+/* tools.js 从这些变量取 Canvas 用色，名字不能改 */
+:root {
+  --surface: var(--canvas);
+  --surface-2: var(--surface-soft);
+  --border: var(--hairline);
+  --accent: var(--primary);
+  --lime: var(--amber);
+  --text: var(--ink);
+  --primary-color: var(--primary);
+}
+
+/* ---------- 2. 基础 ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--body);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  font-feature-settings: "pnum" on, "lnum" on, "liga" on;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* 选中文字用品牌色 —— 这套语言里辨识度最高的小细节之一 */
+::selection {
+  background: var(--primary);
+  color: #fff;
+}
+
+body.is-locked { overflow: hidden; }
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  /* 衬线标题比正文还轻：claude.com 的 hero 实测 font-weight:330。
+     字重对比是反向的，加粗立刻不像 */
+  font-weight: var(--fw-display);
+  color: var(--ink);
+  line-height: 1.1;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+p { margin: 0 0 1.1em; }
+p:last-child { margin-bottom: 0; }
+
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+img, svg { max-width: 100%; }
+svg { display: block; }
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  margin: 40px 0;
+}
+
+code, kbd, pre, .mono { font-family: var(--font-mono); }
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -60px;
+  z-index: 999;
+  padding: 10px 16px;
+  background: var(--dark);
+  color: var(--on-dark);
+  border-radius: var(--r-md);
+  font-size: 14px;
+  transition: top var(--t-fast);
+}
+.skip-link:focus { top: 16px; text-decoration: none; }
+
+.wrap {
+  width: 100%;
+  max-width: var(--w-wide);
+  margin: 0 auto;
+  padding: 0 var(--pad-x);
+}
+
+.muted { color: var(--muted); }
+
+/* ---------- 3. 组件 ---------- */
+
+/* 按钮：8px 圆角（实测 --br-8），不是胶囊。
+   悬停不改底色，而是向外长出一圈同色的 2px 环 —— 这是这套语言里
+   最容易做错的一个交互细节，改成"变深"立刻就不像了。 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 44px;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 480;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 0 0 0 transparent;
+  transition: box-shadow var(--t-fast), background var(--t-fast),
+              border-color var(--t-fast), color var(--t-fast);
+}
+.btn:hover { text-decoration: none; }
+.btn svg { width: 16px; height: 16px; flex: none; }
+
+/* 黑色主按钮。珊瑚色留给品牌按钮和色带，不铺在主 CTA 上 */
+.btn--primary {
+  background: var(--ink);
+  color: var(--canvas);
+}
+.btn--primary:hover { box-shadow: 0 0 0 2px var(--ink); }
+
+/* 品牌按钮：珊瑚底。整站只有少数几处该用 */
+.btn--brand {
+  background: var(--primary-hover);
+  color: #fff;
+}
+.btn--brand:hover { box-shadow: 0 0 0 2px var(--primary-hover); }
+
+/* 次级按钮是"米灰底 + 一圈描边"，不是白底黑框 */
+.btn--outline {
+  background: var(--cream-strong);
+  color: var(--body-strong);
+  border-color: var(--hairline-strong);
+}
+.btn--outline:hover {
+  background: var(--ink);
+  color: var(--canvas);
+  border-color: var(--ink);
+  box-shadow: 0 0 0 2px var(--ink);
+}
+
+.btn--dark {
+  background: var(--ink);
+  color: var(--canvas);
+}
+.btn--dark:hover { box-shadow: 0 0 0 2px var(--ink); }
+
+/* 深色底上的按钮：深色里调亮一档，不反色 */
+.btn--on-dark {
+  background: var(--dark-elevated);
+  color: var(--on-dark);
+  border-color: #3a3733;
+}
+.btn--on-dark:hover { box-shadow: 0 0 0 2px #3a3733; }
+
+.btn--sm { height: 32px; padding: 0 12px; font-size: 14px; }
+.btn--lg { height: 44px; padding: 0 24px; }
+
+/* 文字按钮，用于导航里的次级动作 */
+.btn--text { background: none; padding: 0 4px; }
+.btn--text:hover { background: none; box-shadow: none; color: var(--primary-hover); }
+
+/* 图标按钮：圆形、发丝线描边 */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
+  background: var(--canvas);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast);
+}
+.icon-btn:hover { background: var(--surface-soft); border-color: var(--cream-strong); }
+.icon-btn svg { width: 18px; height: 18px; }
+
+/* 徽章：胶囊形小标签 —— 胶囊圆角只在这里和分段控件上出现 */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--r-pill);
+  background: var(--surface-tertiary);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.tag--coral {
+  background: var(--primary-soft);
+  color: #8c3f22;
+}
+.tag--dark {
+  background: var(--ink);
+  color: var(--canvas);
+}
+.tag--caps {
+  font-size: 11px;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+.tags { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* 全大写小标签，用于 section 眉标 */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
+/* Anthropic 那种放射星标 —— 全站的品牌记号，出现在眉标和 logo 旁 */
+.spike {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  color: var(--primary);
+}
+
+/* 卡片：白底 + 1px 发丝线，比页面底色抬起一档。
+   层次靠"白 / 奶油"的色块差，不靠投影；悬停才补一层极淡的影 */
+.card {
+  background: var(--surface-card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-xl);
+  padding: 32px;
+  transition: background var(--t-base), box-shadow var(--t-base);
+}
+.card--soft { background: var(--surface-soft); border-color: transparent; }
+.card--dark {
+  background: var(--dark);
+  border-color: transparent;
+  color: var(--on-dark-soft);
+}
+.card--dark h1, .card--dark h2, .card--dark h3 { color: var(--on-dark); }
+
+/* ---------- 4. 顶栏 ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(250, 249, 245, 0.88);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.site-header__in {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  height: 64px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: none;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+}
+.brand:hover { text-decoration: none; }
+
+/* 页头的 S 字标：自带奶油圆角底（在深色工具栏上也能看见），
+   所以这里只固定尺寸，不额外加内边距或描边。
+   24px 是实测的下限舒适值 —— 这个字形笔画对比很大，再小细笔画会糊掉 */
+.brand__mark { width: 24px; height: 24px; flex: none; }
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 20px;
+}
+.nav__link {
+  padding: 8px 14px;
+  border-radius: var(--r-md);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.nav__link:hover { background: var(--surface-soft); color: var(--ink); text-decoration: none; }
+.nav__link.is-active { color: var(--ink); }
+
+/* 顶栏右侧：时钟 / 倒计时 / 音乐 / 菜单 */
+.site-header__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.clock, .countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.clock svg, .countdown svg { width: 14px; height: 14px; flex: none; }
+.clock b { color: var(--body); font-weight: 500; }
+.countdown b { color: var(--primary); font-weight: 500; }
+.clock__zone { color: var(--muted-soft); }
+
+.music { border-color: transparent; background: transparent; }
+.music:hover { background: var(--surface-soft); }
+/* 音乐关闭时在音符上划一道斜线 —— 按钮任何时候都反映真实播放状态 */
+.music .slash { opacity: 1; transition: opacity var(--t-fast); }
+.music.is-on .slash { opacity: 0; }
+.music.is-on { color: var(--primary); }
+
+@media (max-width: 900px) {
+  .clock__zone, .countdown { display: none; }
+}
+@media (max-width: 720px) {
+  .clock { display: none; }
+  .nav { display: none; }
+}
+
+/* ---------- 5. 首页 hero ---------- */
+.hero { padding: clamp(56px, 9vw, 96px) 0 clamp(48px, 7vw, 80px); }
+
+/* 左右布局：左边标题与入口，右边深色更新面板。
+   两栏等高（stretch）—— 面板高度跟着左栏文字走，这样上下两条边都齐。
+   左栏限宽 520px 是按实测值定的：标题断成两行后，
+   较长的「做成能跑的东西」在 48px 下需要约 335px，留得下。 */
+.hero__in {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(32px, 4vw, 56px);
+  align-items: stretch;
+}
+
+.hero__lead { max-width: 520px; }
+
+/* 字号上界 48px：断成两行时「做成能跑的东西」约 335px，52px 会顶到栏宽 */
+.hero__title {
+  margin: 0 0 22px;
+  font-size: clamp(32px, 3.4vw, 48px);
+  line-height: 1.15;
+}
+.hero__title em {
+  font-style: italic;
+  color: var(--primary);
+}
+
+.hero__lede {
+  max-width: 42em;
+  margin: 0 0 28px;
+  color: var(--body);
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.hero__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* 深色更新面板：首页的"电压"所在。
+   实测圆角 32px，投影是四层叠加、每层不到 4% alpha。
+   高度由左栏决定（grid stretch），所以不写 min-height；
+   内部用 space-between 把富余空间摊到条目之间，不会挤在顶上。 */
+.hero__panel {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(20px, 2.4vw, 32px);
+  border-radius: var(--r-2xl);
+  background: var(--dark);
+  color: var(--on-dark-soft);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.016), 0 4px 32px rgba(0, 0, 0, 0.016),
+              0 2px 64px rgba(0, 0, 0, 0.012), 0 16px 32px rgba(0, 0, 0, 0.012);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+/* 条目之间均分富余空间，避免全挤在面板顶部 */
+.hero__panel > .updates { flex: 1; justify-content: space-between; }
+
+.hero__panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+.hero__panel-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--on-dark);
+  letter-spacing: 0;
+}
+.hero__panel-tag {
+  color: var(--on-dark-soft);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+/* 最近更新列表：日期一列 + 正文一列 */
+.updates {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.update {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 14px;
+  padding: 12px;
+  border-radius: var(--r-lg);
+  transition: background var(--t-fast);
+}
+.update:hover { background: var(--dark-soft); }
+.update time {
+  color: var(--on-dark-soft);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  padding-top: 3px;
+}
+.update b {
+  display: block;
+  color: var(--on-dark);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+/* 条目标题是整块的链接：在深色面板里用奶油字，悬停才转珊瑚色 */
+.update b a {
+  color: inherit;
+  text-decoration: none;
+}
+.update:hover b a { color: var(--primary); }
+.update b a:focus-visible { outline-color: var(--primary); }
+.update small {
+  display: block;
+  margin-top: 4px;
+  color: var(--on-dark-soft);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.hero__stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(24px, 5vw, 64px);
+  margin-top: clamp(36px, 5vw, 56px);
+  padding-top: 28px;
+  border-top: 1px solid var(--hairline);
+}
+
+.hero__stat b {
+  display: block;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: var(--tracking-tight);
+}
+.hero__stat span { color: var(--muted); font-size: 13px; }
+.hero__stat { text-align: center; }
+
+/* 窄到两栏都放不下时改回单栏 */
+@media (max-width: 820px) {
+  .hero__in { grid-template-columns: minmax(0, 1fr); }
+  .hero__lead { max-width: none; }
+}
+
+/* ---------- 6. section ---------- */
+.section { padding: clamp(56px, 8vw, 96px) 0; }
+.section--tight { padding-top: 0; }
+.section--soft { background: var(--surface-soft); }
+
+.section__head { margin-bottom: 40px; }
+.section__title {
+  font-size: clamp(28px, 3.4vw, 36px);
+  letter-spacing: -0.015em;
+}
+.section__lede {
+  max-width: 44em;
+  margin: 14px 0 0;
+  color: var(--body);
+  font-size: 16px;
+}
+
+/* 深色 / 珊瑚色色带：换一种 surface 就是换一种语气 */
+.band {
+  padding: clamp(48px, 7vw, 80px);
+  border-radius: var(--r-2xl);
+}
+.band--dark { background: var(--dark); color: var(--on-dark-soft); }
+.band--dark h2, .band--dark h3 { color: var(--on-dark); }
+.band--dark .eyebrow { color: var(--on-dark-soft); }
+/* 珊瑚色带是全站唯一"整块珊瑚"的地方 —— 电压给足，但只给一次 */
+.band--coral { background: var(--primary); color: rgba(255, 255, 255, 0.92); }
+.band--coral h2, .band--coral h3 { color: var(--on-primary); }
+.band--coral .eyebrow { color: rgba(255, 255, 255, 0.8); }
+.band--coral a { color: var(--on-primary); }
+
+/* ---------- 7. 文章 / 列表行 ---------- */
+.rows { border-top: 1px solid var(--hairline); }
+
+.row {
+  display: grid;
+  grid-template-columns: 116px minmax(0, 1fr) 24px;
+  gap: 20px;
+  align-items: baseline;
+  padding: 24px 4px;
+  border-bottom: 1px solid var(--hairline);
+  color: inherit;
+  transition: background var(--t-fast);
+}
+.row:hover { background: var(--surface-soft); text-decoration: none; }
+.row time { color: var(--muted-soft); font-size: 13px; font-variant-numeric: tabular-nums; }
+.row b {
+  display: block;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.row p { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+.row__go { color: var(--muted-soft); align-self: center; transition: color var(--t-fast), transform var(--t-fast); }
+.row:hover .row__go { color: var(--primary); transform: translateX(3px); }
+.row__go svg { width: 18px; height: 18px; }
+
+@media (max-width: 720px) {
+  .row { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .row__go { display: none; }
+}
+
+/* ---------- 8. 卡片栅格 ---------- */
+.grid { display: grid; gap: 24px; }
+.grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 1000px) { .grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 680px) {
+  .grid--2, .grid--3 { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* 作品 / 工具卡：整块可点 */
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 32px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-xl);
+  background: var(--surface-card);
+  color: inherit;
+  transition: border-color var(--t-base), box-shadow var(--t-base), background var(--t-base);
+}
+.tile:hover {
+  text-decoration: none;
+  /* 悬停只补一层极淡的影，不改底色、不加粗边框 */
+  box-shadow: var(--shadow-md);
+}
+.tile__icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+  border-radius: 10px;
+  background: var(--primary-soft);
+  color: var(--primary-active);
+}
+.tile__icon svg { width: 22px; height: 22px; }
+.tile__label {
+  color: var(--muted-soft);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+.tile h3 {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0;
+  font-family: var(--font-sans);   /* 卡片标题用无衬线，衬线留给大标题 */
+}
+.tile p { color: var(--muted); font-size: 15px; margin: 0; }
+.tile__foot { margin-top: auto; padding-top: 16px; }
+
+/* 强调卡：珊瑚左边线，学术论文那种标注感 */
+.callout {
+  padding: 24px 28px;
+  border: 1px solid var(--hairline);
+  border-left: 3px solid var(--primary);
+  border-radius: var(--r-md);
+  background: var(--canvas);
+}
+.callout .tile__label { color: var(--primary); }
+.callout h3 {
+  margin: 8px 0 10px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+/* ---------- 9. 内页头部 ---------- */
+.page-head {
+  max-width: var(--w-text);
+  padding: clamp(40px, 6vw, 72px) 0 40px;
+}
+.page-head h1 {
+  font-size: clamp(34px, 4.6vw, 48px);
+  letter-spacing: -0.02em;
+}
+.page-head .lede {
+  margin: 18px 0 0;
+  color: var(--body);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 32px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+.back-link:hover { color: var(--ink); text-decoration: none; }
+.back-link svg { width: 16px; height: 16px; }
+
+/* ---------- 10. 长文排版 ---------- */
+.prose {
+  max-width: var(--w-text);
+  padding-bottom: 24px;
+  font-size: 17px;
+  line-height: 1.72;
+  color: var(--body);
+}
+.prose > p:first-child { font-size: 19px; color: var(--body-strong); }
+
+.prose h2 {
+  margin: 52px 0 16px;
+  font-size: 28px;
+  letter-spacing: -0.012em;
+}
+.prose h3 { margin: 36px 0 12px; font-size: 22px; }
+.prose h2 + p, .prose h3 + p { margin-top: 0; }
+
+.prose b, .prose strong { color: var(--ink); font-weight: 600; }
+.prose em { font-style: italic; }
+
+.prose ul, .prose ol { margin: 0 0 1.1em; padding-left: 1.3em; }
+.prose li { margin-bottom: 0.5em; }
+.prose li::marker { color: var(--muted-soft); }
+
+/* 行内代码：奶油底 + 珊瑚字，这套语言里辨识度最高的细节之一 */
+.prose :not(pre) > code {
+  padding: 2px 6px;
+  border-radius: var(--r-xs);
+  background: var(--primary-soft);
+  color: var(--primary-active);
+  font-size: 0.85em;
+  overflow-wrap: break-word;
+}
+
+.prose pre {
+  margin: 0 0 1.4em;
+  padding: 20px 24px;
+  border-radius: var(--r-lg);
+  background: var(--dark);
+  color: var(--on-dark);
+  font-size: 13.5px;
+  line-height: 1.65;
+  overflow-x: auto;
+}
+.prose pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+
+.prose blockquote {
+  margin: 0 0 1.4em;
+  padding: 4px 0 4px 24px;
+  border-left: 3px solid var(--primary);
+  color: var(--body-strong);
+  font-size: 18px;
+  font-style: italic;
+}
+.prose blockquote p:last-child { margin-bottom: 0; }
+
+.post-head { padding: 8px 0 32px; }
+.post-head h1 { max-width: var(--w-text); font-size: clamp(32px, 4.4vw, 46px); }
+.post-head .lede {
+  max-width: var(--w-text);
+  margin: 18px 0 0;
+  color: var(--body);
+  font-size: 18px;
+  line-height: 1.6;
+}
+.card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--muted-soft);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 11. 工具页 ---------- */
+.toy-grid { display: grid; gap: 32px; }
+.toy {
+  /* 限一下宽度：不留白到 1200px，工具看起来才像"手上的东西" */
+  max-width: 920px;
+  padding: 32px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-xl);
+  background: var(--surface-card);
+}
+.toy__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.toy__head h2 {
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0;
+  margin-bottom: 6px;
+}
+.toy__head p { margin: 0; color: var(--muted); font-size: 15px; }
+
+/* 画布外框：让工具看起来嵌在产品里。
+   画布按 width/height 属性算出的比例内联写在 style 上，这里只负责定位，
+   所以窄屏下画布会等比缩放而不会有留白或裁切。
+   再加一道高度上限，否则宽屏下涂鸦板会占掉整屏，一节只能看到一个工具。 */
+.toy__stage {
+  position: relative;
+  overflow: hidden;
+  max-height: min(62vh, 520px);
+  border-radius: var(--r-lg);
+  background: var(--surface-soft);
+  border: 1px solid var(--hairline);
+}
+.toy__stage canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+.toy__stage canvas:focus-visible { outline-offset: -3px; }
+
+.toy__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+.toy__stat { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+.swatch {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: var(--r-pill);
+  box-shadow: inset 0 0 0 1px rgba(20, 20, 19, 0.12);
+  cursor: pointer;
+  transition: transform var(--t-fast);
+}
+.swatch[aria-pressed="true"] { border-color: var(--ink); }
+.swatch:hover { transform: scale(1.08); }
+
+.range {
+  width: 132px;
+  height: 22px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+/* 方向键盘：九个格子里的四个 */
+.pad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 36px);
+  grid-template-rows: repeat(2, 36px);
+  gap: 4px;
+  margin-left: 4px;
+}
+.pad-grid button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  background: var(--canvas);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background var(--t-fast);
+}
+.pad-grid button:hover { background: var(--surface-soft); }
+.pad-grid svg { width: 18px; height: 18px; }
+.pad-up { grid-area: 1 / 2; }
+.pad-left { grid-area: 2 / 1; }
+.pad-down { grid-area: 2 / 2; }
+.pad-right { grid-area: 2 / 3; }
+
+/* ---------- 12. 编号菜单弹层 ---------- */
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(20, 20, 19, 0.42);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--t-base), visibility var(--t-base);
+}
+.menu[data-open="true"] { opacity: 1; visibility: visible; }
+
+.menu__card {
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 32px;
+  border-radius: var(--r-xl);
+  background: var(--canvas);
+  box-shadow: var(--shadow-2xl);
+  transform: translateY(12px);
+  transition: transform var(--t-base);
+}
+.menu[data-open="true"] .menu__card { transform: translateY(0); }
+
+.menu__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.menu__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
+.menu__list { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--hairline); }
+.menu__item {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto 20px;
+  gap: 12px;
+  align-items: center;
+  padding: 16px 4px;
+  border-bottom: 1px solid var(--hairline);
+  color: var(--ink);
+  transition: padding-left var(--t-fast);
+}
+.menu__item:hover { text-decoration: none; padding-left: 12px; }
+.menu__num {
+  color: var(--muted-soft);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.menu__label { font-size: 17px; font-weight: 500; }
+.menu__en { color: var(--muted-soft); font-size: 13px; }
+.menu__go { color: var(--muted-soft); }
+.menu__go svg { width: 16px; height: 16px; }
+
+.menu__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+.menu__socials { display: flex; gap: 8px; }
+.menu__social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
+  color: var(--ink);
+  transition: background var(--t-fast);
+}
+.menu__social:hover { background: var(--surface-soft); text-decoration: none; }
+.menu__social svg { width: 17px; height: 17px; }
+.menu__mail { color: var(--primary); font-size: 14px; font-weight: 500; }
+.menu__copy {
+  width: 100%;
+  margin: 4px 0 0;
+  color: var(--muted-soft);
+  font-size: 13px;
+}
+
+/* ---------- 13. 页脚 ---------- */
+.footer {
+  margin-top: clamp(48px, 7vw, 96px);
+  padding: 48px 0;
+  border-top: 1px solid var(--hairline);
+  color: var(--muted);
+  font-size: 14px;
+}
+.footer__in {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.footer p { margin: 0; }
+.footer a { color: var(--muted); }
+.footer a:hover { color: var(--primary); }
+.footer__links { display: flex; flex-wrap: wrap; gap: 20px; }
+
+/* ---------- 14. 滚动出现（脚本挂了内容照样可见） ---------- */
+html.js .reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 600ms ease, transform 600ms ease;
+}
+html.js .reveal.is-in { opacity: 1; transform: none; }
+
+/* ---------- 15. 尊重"减少动态效果" ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  html.js .reveal { opacity: 1; transform: none; }
+}
+
+/* ---------- 16. 窄屏兜底 ---------- */
+@media (max-width: 640px) {
+  :root { --pad-x: 18px; }
+  .card, .tile, .toy { padding: 24px; }
+  .band { padding: 32px 24px; }
+  .menu__card { padding: 24px; }
+  .menu__item { grid-template-columns: 32px minmax(0, 1fr) 20px; }
+  .menu__en { display: none; }
+  .prose { font-size: 16.5px; }
+}
+
+/* 打印：去掉所有装饰，只留字 */
+@media print {
+  .site-header, .menu, .footer, .hero__panel, .toy__bar { display: none; }
+  body { background: #fff; color: #000; }
+  .prose { max-width: none; }
+}
