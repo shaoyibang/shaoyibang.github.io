@@ -279,8 +279,22 @@ else
     pass "$SITE_ROOT 是一个 git 仓库"
     ( cd "$SITE_ROOT" && git status --porcelain >/dev/null 2>&1 && pass "git 能正常工作（没有 dubious ownership）" ) \
       || warn "git 在这个目录上工作不正常，检查属主"
+
+    # origin 是 HTTPS 的话，推送走 github.com:443，在国内基本不通。
+    # 表现是"定时同步每 10 分钟失败一次"，而报错只说连不上。
+    ORIGIN="$(git -C "$SITE_ROOT" remote get-url origin 2>/dev/null || true)"
+    case "$ORIGIN" in
+      git@github.com:*) pass "origin 是 SSH：$ORIGIN" ;;
+      https://github.com/*)
+        bad "origin 是 HTTPS，而 github.com:443 基本不通 —— 推送会一直失败。
+     改：git -C $SITE_ROOT remote set-url origin git@github.com:$(printf '%s' "$ORIGIN" | sed -e 's|^https://github.com/||' -e 's|\.git$||').git
+     （bootstrap.sh 会自动改，跑过它就不用管）"
+        ;;
+      "") warn "读不到 origin" ;;
+      *) pass "origin 是 $ORIGIN" ;;
+    esac
   else
-    warn "$SITE_ROOT 还不是 git 仓库（先 clone）"
+    warn "$SITE_ROOT 还不是 git 仓库（照 deploy/README.md 的第二步把仓库拷过去）"
   fi
   if [ -d "$SITE_ROOT" ] && have stat; then
     OWNER="$(stat -c '%u' "$SITE_ROOT" 2>/dev/null)"

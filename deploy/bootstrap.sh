@@ -266,6 +266,33 @@ EOF
   fi
 fi
 
+# origin 如果是 HTTPS，推送走的是 github.com:443 —— 那条路在国内基本不通，
+# 而上面刚把 SSH 改道到了 443。不改的话表现是"定时同步每 10 分钟失败一次"，
+# 报错只说连不上，完全不会指向这里。从本机 scp 过去的仓库 origin 一定是
+# HTTPS（本机就是这么克隆的），所以这一步几乎是必须的。
+#
+# 刻意放在上面那个 GIT_HOME 分支之外：改 origin 只跟仓库有关，跟家目录无关。
+if [ -d "$SITE_ROOT/.git" ] && command -v git >/dev/null 2>&1; then
+  ORIGIN="$(git -C "$SITE_ROOT" remote get-url origin 2>/dev/null || true)"
+  case "$ORIGIN" in
+    https://github.com/*)
+      SLUG="${ORIGIN#https://github.com/}"
+      SLUG="${SLUG%.git}"
+      git -C "$SITE_ROOT" remote set-url origin "git@github.com:${SLUG}.git"
+      ok "origin 从 HTTPS 改成了 SSH：git@github.com:${SLUG}.git（否则推送会走被阻断的 443）"
+      ;;
+    git@github.com:*)
+      ok "origin 已经是 SSH：$ORIGIN"
+      ;;
+    "")
+      warn "读不到 origin，检查 $SITE_ROOT 的 remote"
+      ;;
+    *)
+      ok "origin 是 $ORIGIN（不是 GitHub 的 HTTPS 地址，没动它）"
+      ;;
+  esac
+fi
+
 if timeout 6 bash -c 'exec 3<>/dev/tcp/github.com/443' 2>/dev/null; then
   ok "github.com:443 可达"
 else
