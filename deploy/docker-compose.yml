@@ -1,0 +1,93 @@
+# 两个容器：Caddy 收 HTTPS 并托管静态站，admin 提供写作后台。
+#
+# 关键设计：
+#   · admin 不 publish 端口，只在内部网络可达 —— 只能经 Caddy 进来，
+#     绕不过 HTTPS，也绕不过 Origin 校验。
+#   · 两个容器挂同一份宿主仓库：Caddy 只读（/srv/site），admin 读写（/app）。
+#     后台保存后重新生成的页面，Caddy 下一个请求就能看到，没有中间层。
+#   · 镜像不含代码，所以更新代码 = git pull + 重启，不用 rebuild。
+#
+# 用法（在 deploy/ 目录下）：
+#   docker compose up -d
+#   docker compose logs -f admin
+
+name: sean-site
+
+# 日志轮转。这不是可选项：容器日志默认无限增长，
+# 一个 2C2G 的机器被 access log 撑满磁盘是很常见的翻车方式。
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  caddy:
+    # 固定到具体次版本：这个 Caddyfile 是用 2.11 的 caddy validate 验过的。
+    # 升级时改这里，然后重新跑 deploy/caddyfile.test.mjs 和 caddy validate。
+    image: caddy:2.11-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"        # HTTP/3。不需要可以删掉
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${SITE_ROOT}:/srv/site:ro
+      - caddy_data:/data        # 证书就存在这里，删掉等于重新签发
+      - caddy_config:/config
+      # 访问日志（带轮转）落在这个卷里，容器重建也不会丢
+      - caddy_logs:/var/log/caddy
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:?SITE_DOMAIN 必须在 .env 里设置}
+      ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL 必须在 .env 里设置}
+    mem_limit: 128m
+    logging: *logging
+
+  admin:
+    build:
+      context: .
+      dockerfile: Dockerfile.admin
+    restart: unless-stopped
+    # 注意是 expose 不是 ports：只在内部网络暴露 4322。
+    expose:
+      - "4322"
+    volumes:
+      - ${SITE_ROOT}:/app
+    # 凭据（ADMIN_USER / ADMIN_PASSWORD_HASH / SESSION_SECRET）从 .env 读。
+    # 这个文件不能提交到 git。
+    env_file:
+      - .env
+    # 容器里的进程以宿主的属主身份运行，否则它写出的 .md 和 .html
+    # 属主是 root，宿主上的 git 会认不出来（"dubious ownership"）。
+    user: "${SITE_UID:?SITE_UID 必须在 .env 里设置}:${SITE_GID:?SITE_GID 必须在 .env 里设置}"
+    environment:
+      # 不加时区，后台按 UTC 算，新建文章的日期可能差一天。
+      TZ: Asia/Shanghai
+      # 容器里的这个用户不在 /etc/passwd 里，git 需要一个可写的 HOME
+      # 才能跑起来。
+      HOME: /tmp
+      PORT: "4322"
+      HOST: 0.0.0.0
+      # 反向代理把 /admin 剥掉再转发，应用自己看到的是 /、/api/...；
+      # 而 cookie 的 Path 和登录跳转必须是浏览器看得到的绝对路径。
+      ADMIN_BASE: /admin
+      # 自动提交：生产模式默认开（见 server/admin.mjs）。
+      ADMIN_COMMIT: "1"
+      # 不写这些，容器里的 git commit 会直接失败（"Please tell me who you are"）。
+      GIT_AUTHOR_NAME: ${GIT_AUTHOR_NAME:-site-admin}
+      GIT_AUTHOR_EMAIL: ${GIT_AUTHOR_EMAIL:-site-admin@localhost}
+      GIT_COMMITTER_NAME: ${GIT_AUTHOR_NAME:-site-admin}
+      GIT_COMMITTER_EMAIL: ${GIT_AUTHOR_EMAIL:-site-admin@localhost}
+      # 仓库属主和容器用户一致时其实用不到，但挂载目录的属主一旦被改
+      # （比如手工 sudo 改过文件），git 会直接拒绝工作。这一行让它不至于翻车。
+      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_KEY_0: safe.directory
+      GIT_CONFIG_VALUE_0: /app
+    mem_limit: 320m
+    logging: *logging
+
+volumes:
+  caddy_data:
+  caddy_config:
+  caddy_logs:

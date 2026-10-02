@@ -1,0 +1,19 @@
+[Unit]
+Description=Sean 的工具库：每日备份
+Documentation=file://@SITE_ROOT@/deploy/README.md
+
+[Service]
+Type=oneshot
+# 备份用 root 跑：目标目录是 /var/backups 下的系统位置，
+# 而且需要读到 mode 600 的 deploy/.env。
+Environment=SITE_ROOT=@SITE_ROOT@
+Environment=BACKUP_DIR=@BACKUP_DIR@
+Environment=BACKUP_KEEP_DAYS=@BACKUP_KEEP_DAYS@
+Environment=HOME=/root
+ExecStart=@SITE_ROOT@/deploy/backup.sh
+TimeoutStartSec=600
+
+# 备份是只读操作加一次写文件，不需要动网络，收紧一点没什么坏处
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=@BACKUP_DIR@

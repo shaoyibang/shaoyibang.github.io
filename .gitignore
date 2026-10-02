@@ -1,4 +1,4 @@
-﻿# 编辑器 / 系统
+# 编辑器 / 系统
 .vscode/
 .idea/
 Thumbs.db
@@ -8,3 +8,7 @@ Desktop.ini
 # 验证用的临时文件（截图页、探针页、一次性脚本）
 tmp-*
 shots/
+
+# 部署时的真实凭据与域名。里面有后台口令哈希和会话密钥，绝不能进仓库。
+# （deploy/.env.example 是模板，要提交。）
+deploy/.env

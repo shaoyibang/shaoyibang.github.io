@@ -1,0 +1,13 @@
+[Unit]
+Description=每天 04:00 备份站点
+
+[Timer]
+OnCalendar=*-*-* 04:00:00
+# 错过的补跑
+Persistent=true
+# 散一散，别和别家的定时任务撞在一起
+RandomizedDelaySec=10min
+Unit=site-backup.service
+
+[Install]
+WantedBy=timers.target

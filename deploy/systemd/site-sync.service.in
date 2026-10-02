@@ -1,0 +1,16 @@
+[Unit]
+Description=Sean 的工具库：与 GitHub 同步内容
+Documentation=file://@SITE_ROOT@/deploy/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# 必须用仓库属主的身份跑：git 拒绝在工作目录属主与当前用户不符时工作
+# （"dubious ownership"），root 跑反而会失败。
+User=@SITE_UID@
+Group=@SITE_GID@
+Environment=SITE_ROOT=@SITE_ROOT@
+ExecStart=@SITE_ROOT@/deploy/sync.sh
+# 跑十分钟还没完的多半是卡在网络上，别让它一直挂着占住定时器
+TimeoutStartSec=300

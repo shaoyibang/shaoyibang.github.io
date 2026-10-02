@@ -1,0 +1,86 @@
+# Caddy：自动 HTTPS + 静态站托管 + 反代写作后台
+#
+# 改完一定要校验语法（容器里就带着 caddy 命令）：
+#   docker compose run --rm --entrypoint caddy caddy validate --config /etc/caddy/Caddyfile
+#
+# 公开面是"允许列表"，不是"拒绝列表"：只有下面 @public 里列到的路径会被服务，
+# 其余一律 404。所以 /tools/、/server/、/deploy/、/blog/posts/*.md、/.git/*
+# 这些不需要专门去挡 —— 它们天然不在名单里。
+# 这一条比 GitHub Pages 严格得多：那边是把仓库根目录整个公开出去的。
+{
+	email {$ACME_EMAIL}
+	# 刻意不配 trusted_proxies：让 Caddy 谁都不信，X-Forwarded-For 一律由它
+	# 自己按真实对端写。后台的登录限流取的是这个头的最后一段 ——
+	# 一旦把上游声明成可信，客户端就能自己往前面塞值来伪装 IP。
+}
+
+{$SITE_DOMAIN} {
+	encode zstd gzip
+	root * /srv/site
+	header -Server
+
+	# ---------------------------------------------------------------- 写作后台
+	# /admin 不带斜杠时先跳一下，否则下面的 handle_path /admin/* 匹配不到。
+	@adminBare path /admin
+	redir @adminBare /admin/ 308
+
+	# handle_path 会把 /admin 前缀剥掉再转发，于是应用自己看到的是
+	# /、/app.js、/api/posts —— 它不需要知道自己的挂载前缀。
+	handle_path /admin/* {
+		reverse_proxy admin:4322
+	}
+
+	# ---------------------------------------------------------------- 公开面
+	@public {
+		path / /index.html /tools.html /music.mp3 /robots.txt
+		path /assets/*
+		path /blog /blog/ /blog/index.html /blog/*.html
+		# 随笔的 Markdown 源文件不进公开面（文章页是 blog/<slug>.html）
+		not path /blog/posts/*
+	}
+
+	handle @public {
+		header {
+			X-Content-Type-Options nosniff
+			Referrer-Policy strict-origin-when-cross-origin
+			X-Frame-Options SAMEORIGIN
+		}
+
+		# HTML 必须每次回源确认：文章更新后访客点开就是新的。
+		@html path *.html /
+		header @html Cache-Control "no-cache"
+
+		# site.css / site.js 文件名里没有内容指纹，所以只能短缓存。
+		# 给它们 immutable 会让改版之后的访客一直看到旧样式。
+		@cacheable {
+			path /assets/*
+			not path /assets/img/* /assets/fonts/*
+		}
+		header @cacheable Cache-Control "public, max-age=3600"
+
+		# 图片名带内容哈希（safeImageName 加的），字体分片名也是内容哈希，
+		# 所以这两个目录可以放心长缓存：内容变了文件名就会变。
+		@immutable path /assets/img/* /assets/fonts/*
+		header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+		@audio path /music.mp3
+		header @audio Cache-Control "public, max-age=604800"
+
+		file_server
+	}
+
+	# 不在允许列表里的一律 404，不给任何暗示。
+	handle {
+		respond 404
+	}
+
+	# 访问日志写文件并自带轮转（运行时日志仍然走 stdout，用 docker compose logs 看）。
+	log {
+		output file /var/log/caddy/access.log {
+			roll_size 10mb
+			roll_keep 5
+			roll_keep_for 168h
+		}
+		format console
+	}
+}

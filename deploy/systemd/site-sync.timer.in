@@ -1,0 +1,13 @@
+[Unit]
+Description=每 10 分钟同步一次内容到 GitHub
+
+[Timer]
+# 开机 2 分钟后再开始，别和系统启动抢资源
+OnBootSec=2min
+OnUnitActiveSec=10min
+# 关机期间错过的同步，开机后补跑一次
+Persistent=true
+Unit=site-sync.service
+
+[Install]
+WantedBy=timers.target
