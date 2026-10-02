@@ -144,16 +144,41 @@ curl -sI "https://$D/" | grep -i cache-control                      # no-cache
 curl -sI "https://$D/assets/css/site.css" | grep -i cache-control   # max-age=3600
 curl -sI "https://$D/assets/fonts/fonts.css" | grep -i cache-control # immutable
 
-# 5. 后台
-curl -s -o /dev/null -w '%{http_code}\n' "https://$D/admin/"        # 200
-curl -s -o /dev/null -w '%{http_code}\n' "https://$D/api/posts"     # 401（没登录）
+# 5. 后台（注意接口在 /admin/api/ 下，不是 /api/ —— 后者不在允许列表里）
+curl -s -o /dev/null -w '%{http_code}\n' "https://$D/admin"            # 308（补斜杠）
+curl -s -o /dev/null -w '%{http_code}\n' "https://$D/admin/"           # 302（跳登录页）
+curl -s -o /dev/null -w '%{http_code}\n' "https://$D/admin/login"      # 200
+curl -s -o /dev/null -w '%{http_code}\n' "https://$D/admin/api/posts"  # 401（没登录）
+curl -s -o /dev/null -w '%{http_code}\n' "https://$D/api/posts"        # 404（不在允许列表里）
 
 # 6. 字体是本地的（页面上不该出现 fonts.googleapis.com）
 curl -s "https://$D/" | grep -c 'fonts\.googleapis'                 # 0
 ```
 
-然后在浏览器里打开 `https://$D/admin/`，登录，**真的写一篇测试文章**，
-确认线上 1 秒内可见、`git log` 里出现了自动提交，最后删掉它。
+上面这些是**能自动验的部分**。下面几条只有真机能验，`deploy/stack.test.mjs`
+覆盖不到（它跑的是"真 Caddy + 真 Node"，没有容器）：
+
+```bash
+cd /srv/site/deploy
+
+# 7. 两个容器都起来了，admin 是 healthy（healthcheck 走容器内回环）
+docker compose ps
+#    期待：caddy running / admin running (healthy)
+
+# 8. 镜像拉下来了（国内网络这一步最容易卡住；拉不动就配镜像加速器）
+docker images | grep -E 'caddy|node'
+
+# 9. 属主映射对了 —— 这一条错了不会报错，只会让宿主上的 git 认不出仓库
+ls -l /srv/site/blog/posts/ | head -3      # 属主应是 SITE_UID，不是 root
+cd /srv/site && git status --short         # 应是干净的，且不报 dubious ownership
+
+# 10. 重启后能自己回来
+sudo systemctl restart docker && sleep 20 && docker compose ps
+```
+
+最后在浏览器里打开 `https://$D/admin/`，登录，**真的写一篇测试文章**，
+确认线上 1 秒内可见、`git log` 里出现了自动提交（作者是 `.env` 里配的那个），
+最后删掉它。
 
 ---
 
@@ -413,8 +438,15 @@ node tools/check.mjs && node tools/md.test.mjs && node tools/home.test.mjs
 node tools/fonts.mjs --check && node tools/build.mjs --check
 node server/admin.test.mjs && node server/login.test.mjs
 CADDY_BIN=/path/to/caddy node deploy/caddyfile.test.mjs
+CADDY_BIN=/path/to/caddy node deploy/stack.test.mjs    # 整条链路：反代 + 生产模式后台
 BASH_BIN=/bin/bash       node deploy/scripts.test.mjs
 # 需要浏览器调试端口的两个：
 node server/web.test.mjs
 node tools/verify.mjs
 ```
+
+`stack.test.mjs` 是最接近真实部署的一个：它把真 Caddy 和真后台接起来，
+在一个临时副本里走完"登录 → 传图 → 发文 → 线上可见 → 删文 → 恢复原样"，
+连自动提交的作者都查。**但它仍然覆盖不到容器那一层** —— bind mount、
+`user:` 的 uid 映射、healthcheck、镜像能不能拉下来，这些只有真机知道。
+所以下面的验收清单不是可选项。

@@ -181,7 +181,14 @@ node server/admin.test.mjs    # 口令 / 会话 / 限流 / 路径穿越 / 上传
 node server/login.test.mjs    # 生产模式：缺配置拒绝启动、401/302、锁定与解封、cookie 属性
 node deploy/scripts.test.mjs  # .env 取值、systemd 模板、备份（需要 bash）
 node deploy/caddyfile.test.mjs# 真起一个 Caddy 验公开面（需要 caddy 或 CADDY_BIN）
+node deploy/stack.test.mjs    # 整条链路：真 Caddy 反代 → 生产模式后台（同上）
 ```
+
+`deploy/stack.test.mjs` 是最接近真实部署的一个：登录 → 传图 → 发文 → 线上立即可见
+→ 删文 → 文件恢复原样，连自动提交的作者都查。它在一个临时副本里跑，不碰你的工作仓库。
+**但它仍然覆盖不到容器那一层**——bind mount、`user:` 的 uid 映射、healthcheck、
+镜像能不能拉下来，这些只有真机知道，所以在 [deploy/README.md](deploy/README.md) 的
+验收清单里留着手工步骤。
 
 需要浏览器调试端口的（可选，见 `tools/shots.mjs` 的说明）：
 

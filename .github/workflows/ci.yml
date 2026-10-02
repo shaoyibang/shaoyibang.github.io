@@ -55,5 +55,19 @@ jobs:
           CADDY_BIN: ${{ runner.temp }}/caddy
         run: node deploy/caddyfile.test.mjs
 
+      # 把整条链路接起来跑：真 Caddy 反代 → 生产模式后台。
+      # 它验的是"分开测都过、接起来就崩"的那一类问题 —— 前缀剥离之后
+      # 路由还对不对、cookie 的 Path 正不正确、经反代 Origin 校验过不过、
+      # 保存完 Caddy 是不是立刻读得到、容器里那套 GIT_AUTHOR_* 够不够提交。
+      # 全程在一个临时副本里跑，不碰检出目录。
+      - name: 完整链路（反代 + 生产模式后台）
+        env:
+          CADDY_BIN: ${{ runner.temp }}/caddy
+        run: node deploy/stack.test.mjs
+
       # tools/verify.mjs 和 server/web.test.mjs 需要带调试端口的浏览器，
       # 在 runner 上搭那套东西的收益不如它带来的不稳定，所以留在本地跑。
+      #
+      # 容器自身那一层（bind mount、user: uid 映射、healthcheck、镜像能不能
+      # 拉下来）任何自动化测试都覆盖不到，只能照 deploy/README.md 的
+      # 验收清单手工过一遍。

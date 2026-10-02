@@ -144,6 +144,11 @@ try {
       "/.gitattributes",
       "/.github/workflows/ci.yml",
       "/package.json",
+      /* 接口只在 /admin/api/ 下。/api/* 不在允许列表里，所以这里必须是 404 ——
+         验收清单里把这条写成了 401，跑一遍才发现是错的。 */
+      "/api/posts",
+      "/api/health",
+      "/api/login",
     ]) {
       eq((await fetch(BASE + p, HEAD)).status, 404, p);
     }
