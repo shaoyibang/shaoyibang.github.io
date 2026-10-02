@@ -1,0 +1,7 @@
+# 后台（/admin）本来就在 Caddy 的允许列表之外 —— 这里再声明一次，
+# 是给那些不按 HTTP 状态码、只看 robots.txt 的爬虫看的。
+User-agent: *
+Disallow: /admin
+Disallow: /api/
+
+# 其余随便抓。没有 sitemap：这个站点不需要靠搜索引擎活。
