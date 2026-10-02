@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: 自检与测试
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # 这个仓库没有 package.json，也不需要 npm install：
+      # 站点是零依赖的，写作后台只用 Node 内置模块。
+      # 所以这一整套跑下来就是几秒钟的事。
+      #
+      # 这些断言对应的是 README「踩过的坑」那一节：
+      # 删了文章首页还链着旧页面、生成物和 Markdown 源悄悄不同步、
+      # 字体被换回外链 —— 都是真的发生过，所以让机器守着。
+      - name: 站点自检（断链 / 结构 / Markdown / 首页 / 字体 / 生成物同步）
+        run: |
+          node tools/check.mjs
+          node tools/md.test.mjs
+          node tools/home.test.mjs
+          node tools/fonts.mjs --check
+          node tools/build.mjs --check
+
+      - name: 写作后台（单元 + 路由 + 生产模式鉴权）
+        run: |
+          node server/admin.test.mjs
+          node server/login.test.mjs
+
+      - name: 部署脚本与 systemd 模板
+        run: node deploy/scripts.test.mjs
+
+      # Caddyfile 是部署的安全边界（哪些路径能被下载出去全押在它身上），
+      # 而匹配器的语义只能由 Caddy 自己说了算 —— 所以拉一个真的来跑。
+      - name: 装一个 caddy 用来校验 Caddyfile
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/caddy" "https://caddyserver.com/api/download?os=linux&arch=amd64"
+          chmod +x "$RUNNER_TEMP/caddy"
+
+      - name: Caddyfile（真起服务，验公开面与缓存头）
+        env:
+          CADDY_BIN: ${{ runner.temp }}/caddy
+        run: node deploy/caddyfile.test.mjs
+
+      # tools/verify.mjs 和 server/web.test.mjs 需要带调试端口的浏览器，
+      # 在 runner 上搭那套东西的收益不如它带来的不稳定，所以留在本地跑。
