@@ -209,6 +209,28 @@ else
   bad "ssh.github.com:443 也不可达 —— 服务器推不回 GitHub，退路见 deploy/README.md 的「GitHub 不通怎么办」"
 fi
 
+# 服务器要推回 GitHub，必须有它自己的密钥并被加进仓库的 Deploy keys。
+# 这一步最容易漏：bootstrap.sh 会生成密钥并把公钥打出来，但"加到 GitHub"要人做。
+if [ -n "$(envval SITE_UID)" ] && [ "$(id -u)" = "$(envval SITE_UID)" ]; then
+  KEY_FOUND=""
+  for k in "$HOME/.ssh/id_ed25519" "$HOME/.ssh/id_rsa" "$HOME/.ssh/id_ecdsa"; do
+    [ -f "$k" ] && { KEY_FOUND="$k"; break; }
+  done
+  if [ -n "$KEY_FOUND" ]; then
+    pass "当前用户有 SSH 密钥：$KEY_FOUND"
+    if [ -f "$HOME/.ssh/config" ] && grep -q 'ssh\.github\.com' "$HOME/.ssh/config"; then
+      pass "~/.ssh/config 已把 github.com 改道到 ssh.github.com:443"
+    else
+      warn "~/.ssh/config 里没有改道配置（bootstrap.sh 会加）"
+    fi
+    echo "  （要确认密钥是否已被 GitHub 接受，跑：ssh -T git@github.com）"
+  else
+    bad "当前用户没有 SSH 密钥 —— 服务器推不回 GitHub（跑 sudo bash deploy/bootstrap.sh 生成）"
+  fi
+else
+  warn "当前不是 SITE_UID 用户，跳过密钥检查（用那个用户跑一遍才准）"
+fi
+
 # ------------------------------------------------------- 域名与解析
 sec "域名解析"
 DOMAIN="$(envval SITE_DOMAIN)"

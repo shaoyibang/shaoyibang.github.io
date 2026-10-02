@@ -78,6 +78,16 @@ if ! command -v git >/dev/null 2>&1; then
 fi
 ok "git：$(git --version)"
 
+# ssh-keygen 也要在：服务器得有**自己的**密钥才能推回 GitHub（见第 5 步）。
+# 干净服务器上通常有 openssh-client，但别赌。
+if ! command -v ssh-keygen >/dev/null 2>&1; then
+  case "$PKG" in
+    apt) pkg_install openssh-client || warn "openssh-client 装失败" ;;
+    *)   pkg_install openssh-clients || pkg_install openssh || warn "openssh 客户端装失败" ;;
+  esac
+fi
+command -v ssh-keygen >/dev/null 2>&1 && ok "ssh-keygen 可用"
+
 if ! command -v docker >/dev/null 2>&1; then
   warn "没装 Docker，正在装发行版自带的包（比官方脚本在国内更稳）"
   case "$PKG" in
@@ -177,21 +187,49 @@ systemctl enable --now site-sync.timer site-backup.timer >/dev/null 2>&1 || \
   warn "定时器启用失败，检查：systemctl status site-sync.timer"
 ok "已启用：site-sync.timer（每 10 分钟）、site-backup.timer（每天 04:00）"
 
-# ------------------------------------------- 5. GitHub 走 443 能不能通
-say "检查 GitHub 连通性"
-if timeout 6 bash -c 'exec 3<>/dev/tcp/ssh.github.com/443' 2>/dev/null; then
-  ok "ssh.github.com:443 可达"
-  GIT_HOME="$(getent passwd "$SITE_UID" 2>/dev/null | cut -d: -f6 || true)"
-  if [ -n "$GIT_HOME" ] && [ -d "$GIT_HOME" ]; then
-    SSH_CFG="$GIT_HOME/.ssh/config"
-    mkdir -p "$GIT_HOME/.ssh"
-    if [ -f "$SSH_CFG" ] && grep -q 'ssh\.github\.com' "$SSH_CFG"; then
-      ok "~/.ssh/config 里已经有 ssh.github.com 的配置"
+# --------------------------------- 5. GitHub 部署密钥与连通性
+say "GitHub 部署密钥与连通性"
+
+GIT_HOME="$(getent passwd "$SITE_UID" 2>/dev/null | cut -d: -f6 || true)"
+if [ -z "$GIT_HOME" ] || [ ! -d "$GIT_HOME" ]; then
+  warn "拿不到 uid $SITE_UID 的家目录，跳过密钥检查（GitHub 同步会失败）"
+else
+  SSH_DIR="$GIT_HOME/.ssh"
+  mkdir -p "$SSH_DIR"
+  chmod 700 "$SSH_DIR"
+
+  # 服务器需要**它自己的**密钥。不要把你本机的个人私钥拷上来 —— 那等于把整个
+  # GitHub 账号放到服务器上。这里生成的这一对专门给这台机器，加到仓库的
+  # Deploy keys 里，权限只限这一个仓库。
+  #
+  # 无口令是必须的：systemd 定时器在无人值守的情况下推送，没有地方输口令。
+  KEY="$SSH_DIR/id_ed25519"
+  HAVE_KEY=""
+  for k in "$KEY" "$SSH_DIR/id_rsa" "$SSH_DIR/id_ecdsa"; do
+    [ -f "$k" ] && { HAVE_KEY="$k"; break; }
+  done
+  if [ -n "$HAVE_KEY" ]; then
+    ok "这台机器上已经有 SSH 密钥：$HAVE_KEY"
+  elif command -v ssh-keygen >/dev/null 2>&1; then
+    if ssh-keygen -t ed25519 -N "" -C "site-sync@$(hostname 2>/dev/null || echo server)" -f "$KEY" >/dev/null 2>&1; then
+      chown -R "${SITE_UID}:${SITE_GID}" "$SSH_DIR"
+      chmod 600 "$KEY"; chmod 644 "$KEY.pub"
+      ok "已生成 $KEY（ed25519，无口令）"
     else
-      # 国内多数网络到 github.com:443 是不通的，但 ssh.github.com:443 通。
-      # 这一段就是把 git 的 github 访问改道到那个端口。
-      [ -f "$SSH_CFG" ] && cp "$SSH_CFG" "$SSH_CFG.bak.$(date +%s)"
-      cat >> "$SSH_CFG" <<'EOF'
+      warn "ssh-keygen 失败，请手工：sudo -u \"#${SITE_UID}\" ssh-keygen -t ed25519"
+    fi
+  else
+    warn "没有 ssh-keygen，无法自动生成密钥"
+  fi
+
+  # 国内多数网络到 github.com:443 不通，但 ssh.github.com:443 通。
+  # 这一段就是把 git 对 github 的访问改道到那个端口。
+  SSH_CFG="$SSH_DIR/config"
+  if [ -f "$SSH_CFG" ] && grep -q 'ssh\.github\.com' "$SSH_CFG"; then
+    ok "~/.ssh/config 里已经有 ssh.github.com 的配置"
+  elif timeout 6 bash -c 'exec 3<>/dev/tcp/ssh.github.com/443' 2>/dev/null; then
+    [ -f "$SSH_CFG" ] && cp "$SSH_CFG" "$SSH_CFG.bak.$(date +%s)"
+    cat >> "$SSH_CFG" <<'EOF'
 
 # 由 deploy/bootstrap.sh 添加：github.com 的 443 常被阻断，改走 SSH over 443
 Host github.com
@@ -199,16 +237,44 @@ Host github.com
   Port 443
   User git
 EOF
-      chmod 600 "$SSH_CFG"
-      chown -R "${SITE_UID}:${SITE_GID}" "$GIT_HOME/.ssh"
-      ok "已写入 $SSH_CFG（原文件如有则备份为 .bak.*）"
-    fi
-    echo
-    echo "  用这个身份验证一下（应该看到 Hi <用户名>!）："
-    echo "    sudo -u \"#${SITE_UID}\" ssh -T git@github.com"
+    chmod 600 "$SSH_CFG"
+    chown -R "${SITE_UID}:${SITE_GID}" "$SSH_DIR"
+    ok "已写入 $SSH_CFG（原文件如有则备份为 .bak.*）"
+  else
+    warn "ssh.github.com:443 不可达，没有写 ssh config"
   fi
+
+  # 把公钥打出来 —— 这一步不做完，服务器永远推不回 GitHub
+  PUB=""
+  for k in "$KEY.pub" "$SSH_DIR/id_rsa.pub" "$SSH_DIR/id_ecdsa.pub"; do
+    [ -f "$k" ] && { PUB="$k"; break; }
+  done
+  if [ -n "$PUB" ]; then
+    cat <<EOF
+
+$(printf '\033[1m还需要你手动做一件事\033[0m')：把这台机器的公钥加到 GitHub ——
+  仓库 → Settings → Deploy keys → Add deploy key
+  **勾上 Allow write access**（不勾就只能拉、不能推）
+
+$(sed 's/^/    /' "$PUB")
+
+  加完之后验证（应该看到 Hi / successfully authenticated）：
+    sudo -u "#${SITE_UID}" ssh -T git@github.com
+EOF
+  else
+    warn "没有可用的公钥 —— GitHub 同步会一直失败"
+  fi
+fi
+
+if timeout 6 bash -c 'exec 3<>/dev/tcp/github.com/443' 2>/dev/null; then
+  ok "github.com:443 可达"
 else
-  warn "ssh.github.com:443 不可达。"
+  ok "github.com:443 不可达（预期之内，走上面的 SSH over 443）"
+fi
+if timeout 6 bash -c 'exec 3<>/dev/tcp/ssh.github.com/443' 2>/dev/null; then
+  ok "ssh.github.com:443 可达"
+else
+  warn "ssh.github.com:443 也不可达。"
   warn "服务器推不回 GitHub 时，内容仍然会本地提交，但仓库和 CI 拿不到更新。"
   warn "退路见 deploy/README.md 的「GitHub 不通怎么办」一节（换 Gitee/Codeup 镜像）。"
 fi
