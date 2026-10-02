@@ -62,6 +62,19 @@ for (const file of htmlFiles) {
     if (!/\balt=/.test(img)) problems.push(`${rel}: <img> 缺少 alt -> ${img.slice(0, 60)}`);
   }
 
+  /* 站点必须零第三方请求。字体原本外链 Google，国内拿不到（会把衬线标题打回
+     系统字体），现在已自托管到 assets/fonts/。所以再冒出外链子资源就是回归。
+     只查"浏览器会自动去取的"标签 —— 菜单里的 GitHub / X / B 站是 <a href>，
+     属于有意保留的外链，不在扫描范围。 */
+  for (const tag of src.match(/<(?:link|script|img|audio|video|source|iframe)\b[^>]*>/g) || []) {
+    const m = /(?:href|src)\s*=\s*"([^"]*)"/.exec(tag);
+    if (!m) continue;
+    const u = m[1];
+    if (/^(?:https?:)?\/\//i.test(u)) {
+      problems.push(`${rel}: 外链子资源（应改成本地） -> ${u.slice(0, 72)}`);
+    }
+  }
+
   // 每个页面都应有唯一的 h1
   const h1s = src.match(/<h1[\s>]/g) || [];
   if (h1s.length !== 1) problems.push(`${rel}: h1 数量为 ${h1s.length}（应为 1）`);

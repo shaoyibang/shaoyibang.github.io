@@ -18,8 +18,13 @@ await new Promise((res, rej) => {
 });
 let seq = 0;
 const pending = new Map();
+/* 收集整页加载发出的每一个请求，用来证明"零第三方请求"。
+   字体原本外链 Google（fonts.googleapis.com / gstatic.com），国内访客拿不到，
+   衬线标题会掉回系统字体。这条断言就是那次自托管迁移的守门人。 */
+const requests = [];
 ws.onmessage = (e) => {
   const m = JSON.parse(e.data);
+  if (m.method === "Network.requestWillBeSent") requests.push(m.params.request.url);
   if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); }
 };
 const send = (method, params) => {
@@ -35,7 +40,21 @@ const ev = async (expression) => {
 const results = [];
 const ok = (name, pass, detail) => results.push(`${pass ? "PASS" : "FAIL"}  ${name}${detail ? "  [" + detail + "]" : ""}`);
 
+/* 本站 origin 之外的子资源请求。data: / blob: 以及 <a> 的外链不会出现在
+   Network.requestWillBeSent 的子资源里（导航到外站才会），所以这里够用。 */
+const { host: SELF_HOST } = new URL(BASE);
+const externalRequests = () =>
+  [...new Set(requests)].filter((u) => {
+    try {
+      const x = new URL(u);
+      return /^https?:$/.test(x.protocol) && x.host !== SELF_HOST;
+    } catch {
+      return false;
+    }
+  });
+
 await send("Page.enable", {});
+await send("Network.enable", {});
 await send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
 await send("Page.navigate", { url: `${BASE}/index.html` });
 await new Promise((r) => setTimeout(r, 3000));
@@ -64,6 +83,12 @@ const css = JSON.parse(await ev(`(() => {
 })()`));
 
 ok("字体全部加载", css.fonts.every((f) => f.endsWith("=true")), css.fonts.join(" "));
+const ext0 = externalRequests();
+ok(
+  "零第三方请求（字体已自托管）",
+  ext0.length === 0,
+  ext0.length ? "外链: " + ext0.join(", ") : `首屏共 ${requests.length} 个请求，全部同源`
+);
 ok("标题用衬线且字重轻于正文", /Fraunces/.test(css.h1Family) && Number(css.h1Weight) < 400, `weight=${css.h1Weight}`);
 ok("页面底色是暖奶油 #faf9f5", css.bodyBg === "rgb(250, 249, 245)", css.bodyBg);
 ok("正文 15px / #3d3d3a", css.bodySize === "15px" && css.bodyColor === "rgb(61, 61, 58)", `${css.bodySize} ${css.bodyColor}`);
@@ -155,6 +180,7 @@ const pageList = ["index.html", "tools.html", "blog/index.html", ...new Set(post
 console.log("待验证页面: " + pageList.join(", ") + "\n");
 
 for (const p of pageList) {
+  requests.length = 0;
   await send("Page.navigate", { url: `${BASE}/${p}` });
   await new Promise((res) => setTimeout(res, 2000));
   await ev(`(async () => {
@@ -177,6 +203,8 @@ for (const p of pageList) {
   })`));
   const bad = await ev("window.__err || ''");
   ok(`页面 ${p}`, info.h1 === 1 && info.hidden === 0 && info.css && !bad, `h1=${info.h1} 未显示=${info.hidden}${bad ? " JS错误:" + bad : ""}`);
+  const ext = externalRequests();
+  ok(`页面 ${p} 无第三方请求`, ext.length === 0, ext.join(", "));
 }
 
 console.log(results.join("\n"));

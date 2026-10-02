@@ -23,11 +23,9 @@ const POSTS_DIR = join(ROOT, "blog", "posts");
 const CHECK_ONLY = process.argv.includes("--check");
 
 /* ---------------------------------------------------------------- 站点常量 */
-const FONTS = "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK" +
-  "@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1" +
-  "&family=Inter:opsz,wght@14..32,100..900" +
-  "&family=JetBrains+Mono:wght@300..600" +
-  "&family=Noto+Serif+SC:wght@300..600&display=swap";
+/* 字体已经从 Google 搬到了本地（见 tools/fonts.mjs），所以这里只是一个
+   指向 assets/fonts/fonts.css 的相对链接 —— 随笔页在 blog/ 下，多一层 ../。 */
+const FONTS_LINK = '<link rel="stylesheet" href="../assets/fonts/fonts.css">';
 
 const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23faf9f5'/%3E%3Cg transform='matrix(0.046195,0,0,0.046195,-7.12,-9.26)'%3E%3Cpath fill='%23d97757' d='M 665 300 L 420 300 C 330 300 265 345 265 425 C 265 495 315 530 390 550 L 555 595 C 610 610 635 630 635 665 C 635 705 600 730 540 730 L 335 730 L 285 800 L 555 800 C 655 800 730 750 730 665 C 730 590 680 555 605 535 L 430 488 C 375 473 360 450 360 425 C 360 395 385 370 435 370 L 615 370 Z'/%3E%3C/g%3E%3C/svg%3E";
 
@@ -155,9 +153,7 @@ export function renderPost(p, all) {
 <meta name="description" content="${escAttr(p.summary)}">
 <meta name="theme-color" content="#faf9f5">
 <link rel="icon" href="${FAVICON}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="${FONTS}" rel="stylesheet">
+${FONTS_LINK}
 <link rel="stylesheet" href="../assets/css/site.css">
 <script>
   (function () { document.documentElement.classList.add("js"); })();
@@ -289,9 +285,7 @@ export function renderIndex(all) {
 <meta name="description" content="关于界面设计、前端实现与可访问性的随笔，写得慢，但每篇都尽量给出可验证的结论。">
 <meta name="theme-color" content="#faf9f5">
 <link rel="icon" href="${FAVICON}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="${FONTS}" rel="stylesheet">
+${FONTS_LINK}
 <link rel="stylesheet" href="../assets/css/site.css">
 <script>
   (function () { document.documentElement.classList.add("js"); })();
