@@ -7,10 +7,12 @@ const problems = [];
 const notes = [];
 
 /* 这些不是"站点页面"，是开发工具或临时产物，不该按页面标准校验：
-   · tools/editor  —— 本地写作界面，由 tools/editor.mjs 在另一个文档根下提供
-   · docs/         —— README 配图
-   · 以 _ 开头的    —— 临时/草稿文件（约定：下划线开头不进仓库） */
-const SKIP_DIRS = ["node_modules", ".git", "docs", join("tools", "editor")];
+   · server/web  —— 写作后台界面，由 server/admin.mjs 在另一个文档根下提供；
+                    它的引用是按那个根算的（/assets/... 是绝对路径），
+                    用文件系统相对路径去验必然误报
+   · docs/       —— README 配图
+   · 以 _ 开头的  —— 临时/草稿文件（约定：下划线开头不进仓库） */
+const SKIP_DIRS = ["node_modules", ".git", "docs", join("server", "web")];
 const isSkipped = (p) => {
   const rel = p.slice(ROOT.length + 1);
   if (rel.split(sep)[0].startsWith("_")) return true;

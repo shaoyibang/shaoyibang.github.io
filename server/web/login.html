@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>登录 · 写作后台</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#faf9f5">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23faf9f5'/%3E%3Cg transform='matrix(0.046195,0,0,0.046195,-7.12,-9.26)'%3E%3Cpath fill='%23d97757' d='M 665 300 L 420 300 C 330 300 265 345 265 425 C 265 495 315 530 390 550 L 555 595 C 610 610 635 630 635 665 C 635 705 600 730 540 730 L 335 730 L 285 800 L 555 800 C 655 800 730 750 730 665 C 730 590 680 555 605 535 L 430 488 C 375 473 360 450 360 425 C 360 395 385 370 435 370 L 615 370 Z'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
+<style>
+  :root {
+    --canvas: #faf9f5; --surface: #ffffff; --ink: #141413; --body: #3d3d3a;
+    --muted: #5e5d59; --hair: #e8e6dc; --clay: #d97757; --focus: #c46849;
+    --font-display: "Fraunces", "Noto Serif SC", Georgia, serif;
+    --font-sans: "Inter", "Noto Serif SC", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center;
+    background: var(--canvas); color: var(--body);
+    font: 400 15px/1.6 var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  .card {
+    width: min(92vw, 380px); background: var(--surface);
+    border: 1px solid var(--hair); border-radius: 16px; padding: 32px;
+  }
+  .mark { width: 24px; height: 24px; display: block; margin-bottom: 20px; }
+  h1 {
+    margin: 0 0 4px; font-family: var(--font-display);
+    font-weight: 340; font-size: 26px; line-height: 1.2; color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .sub { margin: 0 0 24px; font-size: 13px; color: var(--muted); }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  input {
+    width: 100%; padding: 9px 11px; margin-bottom: 16px;
+    background: var(--canvas); color: var(--ink);
+    border: 1px solid var(--hair); border-radius: 8px;
+    font: inherit; font-size: 14px;
+  }
+  input:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; border-color: var(--focus); }
+  button {
+    width: 100%; padding: 10px 16px; cursor: pointer;
+    background: var(--ink); color: var(--canvas);
+    border: 1px solid var(--ink); border-radius: 8px;
+    font: 480 14px/1 var(--font-sans);
+    transition: box-shadow .18s ease;
+  }
+  /* 悬停是长出一圈同色环，不是变深 —— 跟站点其它按钮同一套语言 */
+  button:hover:not(:disabled) { box-shadow: 0 0 0 2px var(--ink); }
+  button:disabled { opacity: .5; cursor: default; }
+  .msg {
+    margin: 16px 0 0; padding: 9px 11px; border-radius: 8px; font-size: 13px;
+    background: #fdf1ec; border: 1px solid #f0d4c8; color: #8a3d21;
+  }
+  .msg[hidden] { display: none; }
+</style>
+</head>
+<body>
+
+<main class="card">
+  <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+    <rect width="32" height="32" rx="7" fill="#faf9f5"/>
+    <g transform="matrix(0.046195,0,0,0.046195,-7.12,-9.26)">
+      <path fill="#d97757" d="M 665 300 L 420 300 C 330 300 265 345 265 425 C 265 495 315 530 390 550 L 555 595 C 610 610 635 630 635 665 C 635 705 600 730 540 730 L 335 730 L 285 800 L 555 800 C 655 800 730 750 730 665 C 730 590 680 555 605 535 L 430 488 C 375 473 360 450 360 425 C 360 395 385 370 435 370 L 615 370 Z"/>
+    </g>
+  </svg>
+
+  <h1>写作后台</h1>
+  <p class="sub">Sean 的工具库</p>
+
+  <form id="form" autocomplete="on">
+    <label for="user">用户名</label>
+    <input id="user" name="user" type="text" autocomplete="username" required autofocus>
+
+    <label for="password">口令</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+    <button type="submit" id="submit">登录</button>
+  </form>
+
+  <p class="msg" id="msg" role="alert" hidden></p>
+</main>
+
+<script>
+/* 接口一律用相对路径：这个页面在开发模式下是 /login，生产模式下是
+   /admin/login（反代把 /admin 剥掉再转发）。相对路径在两种挂载下
+   都指向正确的 /api/login，不需要前端知道自己的前缀。 */
+const form = document.getElementById("form");
+const submit = document.getElementById("submit");
+const msg = document.getElementById("msg");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  msg.hidden = true;
+  submit.disabled = true;
+  submit.textContent = "登录中…";
+  try {
+    const res = await fetch("api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user: document.getElementById("user").value,
+        password: document.getElementById("password").value,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || ("HTTP " + res.status));
+    location.replace("./");
+  } catch (err) {
+    msg.textContent = err.message;
+    msg.hidden = false;
+    document.getElementById("password").value = "";
+    submit.disabled = false;
+    submit.textContent = "登录";
+  }
+});
+</script>
+</body>
+</html>

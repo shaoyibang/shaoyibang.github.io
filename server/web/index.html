@@ -19,13 +19,17 @@
   </span>
 
   <button class="btn btn--sm btn--primary" type="button" id="save">保存</button>
-  <a class="btn btn--sm btn--outline" href="/site/index.html" target="_blank" rel="noopener">打开主页 ↗</a>
-  <a class="btn btn--sm btn--outline" href="/site/blog/index.html" target="_blank" rel="noopener">随笔列表 ↗</a>
+  <!-- 这两个链接的目标由 app.js 按模式改写：开发模式指向服务挂出来的
+       /site/ 预览（响应一律 no-store，保存完点一下就是最新的），生产模式
+       指向真正的线上站点。href 里先写开发模式的地址，作为无 JS 时的退路。 -->
+  <a class="btn btn--sm btn--outline" id="open-home" href="/site/index.html" target="_blank" rel="noopener">打开主页 ↗</a>
+  <a class="btn btn--sm btn--outline" id="open-blog" href="/site/blog/index.html" target="_blank" rel="noopener">随笔列表 ↗</a>
   <button class="btn btn--sm btn--outline" type="button" id="build">重新生成页面</button>
   <button class="btn btn--sm btn--outline" type="button" id="upload">插入图片</button>
 
   <span class="bar__spacer"></span>
   <button class="btn btn--sm btn--danger" type="button" id="delete">删除这篇</button>
+  <button class="btn btn--sm btn--outline" type="button" id="logout" hidden>退出</button>
   <span class="bar__status" id="status">就绪</span>
 </header>
 

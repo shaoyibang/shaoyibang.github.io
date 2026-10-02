@@ -4,13 +4,14 @@
    预览 deliberately 复用 tools/md.mjs（由本地服务以模块形式提供），
    和发布时用的是同一个转换器 —— 否则会出现"编辑器里好看、发出去不一样"。
    ========================================================================= */
-import { mdToHtml } from "/tools/md.mjs";
+import { mdToHtml } from "./md.mjs";
 
 const $ = (id) => document.getElementById(id);
 const els = {
   list: $("list"), editor: $("editor"), preview: $("preview"), status: $("status"),
   save: $("save"), build: $("build"), upload: $("upload"), new: $("new"),
-  delete: $("delete"),
+  delete: $("delete"), logout: $("logout"),
+  openHome: $("open-home"), openBlog: $("open-blog"),
   file: $("file"), drop: $("drop"),
   title: $("f-title"), date: $("f-date"), summary: $("f-summary"),
   cats: $("f-cats"), slug: $("f-slug"),
@@ -33,11 +34,23 @@ function setStatus(msg, kind) {
   els.status.className = "bar__status" + (kind ? " is-" + kind : "");
 }
 
+/* 接口路径写成相对的是必须的，不是风格问题：
+   后台在开发模式挂在根上（/api/...），生产模式挂在 /admin/ 下、由反向代理
+   把 /admin 前缀剥掉再转发。页面在浏览器里的位置是 /admin/，所以绝对路径
+   /api/posts 会打到主站上去（那里没有这个接口），而相对路径 ./api/posts
+   在两种挂载下都算得对。调用处仍然写 "/api/xxx"，由这里统一转一次。 */
+const apiUrl = (path) => (path.startsWith("/") ? "." + path : path);
+
 async function api(path, options) {
-  const res = await fetch(path, options);
+  const res = await fetch(apiUrl(path), options);
   const text = await res.text();
   let data;
   try { data = JSON.parse(text); } catch { data = { error: text }; }
+  /* 会话过期时后端返回 401：与其显示一句"未登录"，不如直接回登录页。 */
+  if (res.status === 401) {
+    location.replace("login");
+    throw new Error("登录已过期");
+  }
   if (!res.ok) throw new Error(data.error || ("HTTP " + res.status));
   return data;
 }
@@ -64,6 +77,7 @@ async function loadList() {
     b.addEventListener("click", () => open(p.slug));
     els.list.appendChild(b);
   }
+  return posts;
 }
 
 /* ------------------------------------------------------------------ 打开 */
@@ -342,11 +356,29 @@ els.editor.addEventListener("paste", (e) => {
   }
 });
 
+/* ---------------------------------------------------------- 会话与出口链接
+   开发模式挂着 /site/ 预览（响应一律 no-store，保存完点一下就是最新的），
+   生产模式没有预览，只能看真正的线上站点 —— 由服务端告诉我们当前是哪种，
+   前端不猜。拿不到也不影响写作，就按 href 里写好的开发模式默认值走。 */
+async function initSession() {
+  try {
+    const s = await api("/api/session");
+    const base = s.adminBase || "";
+    els.openHome.href = s.dev ? base + "/site/index.html" : "/";
+    els.openBlog.href = s.dev ? base + "/site/blog/index.html" : "/blog/index.html";
+    if (!s.dev) els.logout.hidden = false;
+  } catch { /* 忽略：下面照常加载文章 */ }
+}
+
 /* ------------------------------------------------------------------ 绑定 */
 els.save.addEventListener("click", save);
 els.build.addEventListener("click", build);
 els.new.addEventListener("click", createNew);
 els.delete.addEventListener("click", confirmDelete);
+els.logout.addEventListener("click", async () => {
+  try { await api("/api/logout", { method: "POST" }); } catch { /* 清不掉也照样跳走 */ }
+  location.replace("login");
+});
 
 window.addEventListener("beforeunload", (e) => {
   if (!dirty) return;
@@ -357,11 +389,11 @@ window.addEventListener("beforeunload", (e) => {
 /* ------------------------------------------------------------------ 启动 */
 (async function init() {
   try {
-    await loadList();
-    const { posts } = await api("/api/posts");
+    await initSession();
+    const posts = await loadList();
     if (posts.length) await open(posts[0].slug);
     else createNew();
   } catch (e) {
-    setStatus("启动失败：" + e.message + "（本地服务还在跑吗？）", "error");
+    setStatus("启动失败：" + e.message + "（后台服务还在跑吗？）", "error");
   }
 })();
