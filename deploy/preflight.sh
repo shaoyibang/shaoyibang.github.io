@@ -134,6 +134,23 @@ else
   pass "没有 SELinux（Debian / Ubuntu 常见）"
 fi
 
+# ------------------------------------------------------------------ Node
+sec "Node（可选：只在宿主机上跑 tools/*.mjs 时才需要）"
+if have node; then
+  NODE_V="$(node -v 2>/dev/null)"
+  NODE_M="$(printf '%s' "$NODE_V" | sed -e 's/^v//' -e 's/\..*$//')"
+  if [ "${NODE_M:-0}" -ge 18 ]; then
+    pass "Node $NODE_V（够新）"
+  else
+    bad "Node $NODE_V 太旧：tools/*.mjs 需要 18+，跑起来会抛一个看不懂的
+     SyntaxError（指向 auth.mjs 里的可选链）。装新的：
+       sudo bash deploy/bootstrap.sh --with-node
+     Ubuntu 22.04 用 apt 装出来就是 12，装不到够新的。"
+  fi
+else
+  pass "没装 Node（宿主机不需要 —— 只要 deploy/.env 里的凭据已经生成过）"
+fi
+
 # ---------------------------------------------------------------- Docker
 sec "Docker"
 DOCKER_OK=0

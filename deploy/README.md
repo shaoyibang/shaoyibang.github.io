@@ -56,35 +56,17 @@ Internet :443
 
 ## 二、一次性安装
 
-下面这个顺序不是随便排的，它绕开了三个"先有鸡还是先有蛋"：
+下面这个顺序不是随便排的，它绕开了两个"先有鸡还是先有蛋"：
 
 | 干净服务器上没有 | 所以不能 | 绕法 |
 | --- | --- | --- |
-| **git** | `git clone` 取代码 | 先装它（一条命令，见第 2 步） |
-| **Node** | 在服务器上生成口令哈希 | 在**本机**生成好，把三行粘贴过去 |
-| **能访问 GitHub 的密钥** | 直接推送 | 先生成密钥并加到 GitHub（第 2 步） |
+| **git** | `git clone` 取代码 | 先装它（一条命令，见第 1 步） |
+| **能访问 GitHub 的密钥** | 直接推送 | 先生成密钥并加到 GitHub（第 1 步） |
 
-### 1. 生成后台口令（在你自己的机器上）
+（还有第三条 —— 没有 Node 就生成不了口令哈希 —— 第 4 步的 `--with-node`
+顺手把它也解决掉。）
 
-服务器上不装 Node，所以这一步在**本机**做。在仓库目录里：
-
-```powershell
-node tools/passwd.mjs
-```
-
-它会交互式地问两遍口令（不回显），然后**打印**三行：
-
-```
-ADMIN_USER=...
-ADMIN_PASSWORD_HASH=scrypt$32768$8$1$...
-SESSION_SECRET=...
-```
-
-先复制下来，第 4 步要粘到服务器上。
-
-> 口令至少 10 位。这个后台是开在公网上的，短口令等于没有。
-
-### 2. 服务器上装 git，并配好一把密钥
+### 1. 服务器上装 git，并配好一把密钥
 
 ```bash
 # 按发行版选一条
@@ -117,7 +99,7 @@ cat ~/.ssh/id_ed25519.pub
 > 无口令是必须的：systemd 定时器在无人值守时推送，没有地方输口令。
 > 用 Deploy key 而不是个人密钥，是为了把权限限制在这一个仓库上。
 
-### 3. 克隆仓库（走 SSH over 443）
+### 2. 克隆仓库（走 SSH over 443）
 
 国内到 `github.com:443` 常常不通，但 `ssh.github.com:443` 通。直接把它写进
 地址里，**一条命令，不需要改任何 ssh 配置**：
@@ -133,7 +115,7 @@ cd /srv/site
 
 > **GitHub 完全不可达？** 那就换 scp，见「六、GitHub 同步」一节的最后一段。
 
-### 4. 填配置
+### 3. 填基础配置
 
 ```bash
 cd /srv/site
@@ -144,26 +126,42 @@ sed -i "s|^SITE_ROOT=.*|SITE_ROOT=/srv/site|; \
         s|^SITE_UID=.*|SITE_UID=$(id -u)|; \
         s|^SITE_GID=.*|SITE_GID=$(id -g)|" deploy/.env
 
-nano deploy/.env      # 填 SITE_DOMAIN、ACME_EMAIL，并把第 1 步打印的三行凭据粘进去
+nano deploy/.env      # 填 SITE_DOMAIN、ACME_EMAIL
 chmod 600 deploy/.env
-grep -cE '^(SITE_DOMAIN|ACME_EMAIL|SITE_ROOT|SITE_UID|SITE_GID|ADMIN_USER|ADMIN_PASSWORD_HASH|SESSION_SECRET)=.+' deploy/.env
-# ↑ 应该输出 8；少于 8 说明还有没填的
+grep -cE '^(SITE_DOMAIN|ACME_EMAIL|SITE_ROOT|SITE_UID|SITE_GID)=.+' deploy/.env
+# ↑ 应该输出 5；少于 5 说明还有没填的
 ```
 
-> 粘贴不会弄坏哈希。那个"`$` 被 shell 展开"的坑只在 `source .env` 时才会踩到，
-> 往文件里粘贴是逐字写入的。
+凭据那三行（`ADMIN_USER` / `ADMIN_PASSWORD_HASH` / `SESSION_SECRET`）由第 5 步
+自动写进去，这里不用管。
 
-### 5. 跑准备脚本
+### 4. 跑准备脚本（顺便把 Node 装上）
 
 ```bash
-sudo bash deploy/bootstrap.sh
+sudo bash deploy/bootstrap.sh --with-node
 ```
 
-它会装 Docker / compose / openssh-client（git 第 2 步已经装好了），加 2G swap，
+它会装 Docker / compose / openssh-client（git 第 1 步已经装好了），加 2G swap，
 把 `/srv/site` 属主调成 `SITE_UID:SITE_GID`，安装两个 systemd 定时器，
-检查 GitHub 连通性，确认 origin 是 SSH（不是 HTTPS，否则推送会走被阻断的 443）。
+检查 GitHub 连通性，确认 origin 是 SSH（不是 HTTPS，否则推送会走被阻断的 443），
+并且**装一个够新的 Node 到 `/usr/local`**。
 
-密钥第 2 步已经生成好了，所以它会直接复用它，不会重复生成。
+密钥第 1 步已经生成好了，所以它会直接复用它，不会重复生成。
+
+> **为什么不用 `apt install nodejs`**：Ubuntu 22.04 的 apt 给的是 **Node 12.22**，
+> 而 `tools/*.mjs` 需要 18+。Node 12 会在**解析阶段**抛
+> `SyntaxError: Unexpected token '.'`，指向 `server/auth.mjs` 某一行 ——
+> 报错里一个字都不会提到"你的 Node 太旧"。所以 `--with-node` 是从官方 tarball
+> 装到 `/usr/local`（优先走 npmmirror，国内快）。
+>
+> **不想在服务器上装 Node？** 那把 `--with-node` 去掉，改成在你自己的机器上跑
+> `node tools/passwd.mjs`（它会**打印**三行而不是写文件），把那三行粘进
+> 服务器的 `deploy/.env`。两条路都行，看你觉得哪个省事。
+> 粘贴不会弄坏哈希 —— 那个"`$` 被 shell 展开"的坑只在 `source .env` 时才会踩到，
+> 往文件里粘是逐字写入的。
+>
+> `bootstrap.sh` 只会因为凭据为空**警告**、不会中止 —— 这台机器上的准备工作
+> 跟凭据无关，可以先做完。后台自己会在启动时拒绝空凭据（那才是权威检查点）。
 
 > 加完 Deploy key 之后验证一下：`ssh -T git@github.com`（应该看到欢迎语）
 
@@ -177,12 +175,29 @@ sudo bash deploy/bootstrap.sh
 > sudo mkswap /swapfile && sudo swapon /swapfile
 > echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 > echo 'vm.swappiness=10' | sudo tee /etc/sysctl.d/99-sean-site.conf
+> # Node（不要用 apt：Ubuntu 22.04 给的是 12，太旧）
+> f=$(curl -fsSL https://npmmirror.com/mirrors/node/latest-v22.x/SHASUMS256.txt | awk '/linux-x64\.tar\.xz$/ {print $2; exit}')
+> curl -fsSL -o /tmp/node.tar.xz "https://npmmirror.com/mirrors/node/latest-v22.x/$f"
+> sudo tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 && rm /tmp/node.tar.xz
 > # 定时器（把占位符换成真实值）
 > sed -e 's|@SITE_ROOT@|/srv/site|g' -e 's|@SITE_UID@|'"$(id -u)"'|g' \
 >     -e 's|@SITE_GID@|'"$(id -g)"'|g' -e 's|@BACKUP_DIR@|/var/backups/site|g' \
 >     -e 's|@BACKUP_KEEP_DAYS@|14|g' deploy/systemd/*.in
 > # 逐个写进 /etc/systemd/system/ 然后 systemctl daemon-reload && systemctl enable --now site-sync.timer site-backup.timer
 > ```
+
+### 5. 生成后台口令
+
+```bash
+cd /srv/site
+node tools/passwd.mjs --out deploy/.env
+```
+
+交互式地问两遍口令（不回显），把 `ADMIN_USER` / `ADMIN_PASSWORD_HASH` /
+`SESSION_SECRET` 三行写进 `deploy/.env` —— 其它行原样不动。
+
+> 口令至少 10 位。这个后台是开在公网上的，短口令等于没有。
+> Node 太旧的话这个脚本会直接告诉你，并给出一条装对的命令（不会给你一个看不懂的语法错误）。
 
 ### 6. 上线前体检
 
@@ -471,10 +486,12 @@ scp -r . 用户名@服务器IP:/srv/site
 
 **连 `.git` 一起拷过去** —— 提交历史要保住，服务器上的自动提交靠它。
 
-拷过去之后照常走第 4 步（填配置）。两个要注意的地方：
+拷过去之后照常走第 3 步（填基础配置）。三个要注意的地方：
 
+- **第 4 步的 `--with-node` 就别加了** —— 走这条路的前提就是不想在服务器上装 Node。
+  改成在你本机跑 `node tools/passwd.mjs`，把打印出来的三行粘进服务器的 `deploy/.env`。
 - **origin 会是 HTTPS**（本机就是这么克隆的），推送会走被阻断的 `github.com:443`。
-  第 5 步的 `bootstrap.sh` 会自动把它改成 SSH 地址；`preflight.sh` 也会检查这一条。
+  第 4 步的 `bootstrap.sh` 会自动把它改成 SSH 地址；`preflight.sh` 也会检查这一条。
 - **确保没被改成 CRLF**：这些文件在仓库里就是 LF，`scp` 逐字节复制不会改。
   如果中间经过别的传输方式（压缩解压、某些编辑器），到服务器上跑
   `bash -n deploy/*.sh` 确认 —— CRLF 的 shell 脚本在 Linux 上会以一个很难懂的

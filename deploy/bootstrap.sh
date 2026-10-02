@@ -11,7 +11,8 @@
 #   6. 打印接下来要做什么
 #
 # 用法（在仓库根目录，用 root）：
-#   sudo bash deploy/bootstrap.sh
+#   sudo bash deploy/bootstrap.sh               基础准备
+#   sudo bash deploy/bootstrap.sh --with-node   顺便装一个够新的 Node（见下）
 # =========================================================================
 set -euo pipefail
 
@@ -19,6 +20,15 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(dirname "$HERE")"
 UNIT_SRC="$HERE/systemd"
 UNIT_DST="/etc/systemd/system"
+
+WITH_NODE=0
+for a in "$@"; do
+  case "$a" in
+    --with-node) WITH_NODE=1 ;;
+    -h|--help) sed -n '2,12p' "$0"; exit 0 ;;
+    *) echo "未知参数：$a"; exit 2 ;;
+  esac
+done
 
 # say / ok / warn / die 和 envval 都从这里来，构造函数和测试共用同一份
 # shellcheck source=lib.sh
@@ -44,8 +54,10 @@ BACKUP_KEEP_DAYS="$(envval BACKUP_KEEP_DAYS)"; BACKUP_KEEP_DAYS="${BACKUP_KEEP_D
 [ -n "$SITE_DOMAIN" ] || die "deploy/.env 里要设置 SITE_DOMAIN"
 
 if [ -z "$(envval ADMIN_PASSWORD_HASH)" ] || [ -z "$(envval SESSION_SECRET)" ]; then
-  die "deploy/.env 里 ADMIN_PASSWORD_HASH 或 SESSION_SECRET 是空的
-先生成：node tools/passwd.mjs --out deploy/.env"
+  # 刻意只警告、不中止：这台机器上的准备工作（Docker、swap、定时器、密钥）
+  # 跟凭据无关，可以照常做完。后台自己会在启动时拒绝空凭据（那是权威检查点），
+  # preflight.sh 也会把这一条报成阻塞项。
+  warn "deploy/.env 里还没有口令哈希 / 会话密钥 —— 后台起不来。下一步：node tools/passwd.mjs --out deploy/.env"
 fi
 
 say "部署参数"
@@ -87,6 +99,73 @@ if ! command -v ssh-keygen >/dev/null 2>&1; then
   esac
 fi
 command -v ssh-keygen >/dev/null 2>&1 && ok "ssh-keygen 可用"
+
+# ------------------------------------------------- 1.5 Node（可选，--with-node）
+#
+# 宿主机其实不需要 Node：后台的 Node 跑在容器里。装它只为一件事 ——
+# 在服务器上就能跑 `node tools/passwd.mjs` 生成口令哈希，不用切回自己的电脑
+# 再粘贴过来。要不要装，取决于你觉得哪个更省事。
+#
+# 为什么不用 apt：Ubuntu 22.04 的 nodejs 是 12.22.9，而 tools/*.mjs 用了
+# 可选链 / 空值合并 / 顶层 await（Node 14.8+）。Node 12 跑起来会在**解析阶段**
+# 抛 "SyntaxError: Unexpected token '.'"，指向 auth.mjs 某一行 —— 报错里
+# 一个字都不会提到"你的 Node 太旧"。所以这里从官方 tarball 装到 /usr/local。
+node_major() {
+  if command -v node >/dev/null 2>&1; then
+    node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0
+  else
+    echo 0
+  fi
+}
+
+say "Node"
+CUR_NODE="$(node_major)"
+if [ "$WITH_NODE" -eq 1 ]; then
+  if [ "${CUR_NODE:-0}" -ge 18 ]; then
+    ok "已经有 Node v$(node -v | sed 's/^v//')，跳过"
+  else
+    [ "${CUR_NODE:-0}" -ne 0 ] && warn "现有 Node 是 v$(node -v | sed 's/^v//')，太旧（需要 18+）；装一个够新的到 /usr/local"
+
+    command -v curl >/dev/null 2>&1 || pkg_install curl || die "需要 curl 才能下载 Node"
+
+    # 版本号不硬编码：它随时会变。从 SHASUMS256.txt 里解出当前 v22 的文件名。
+    NODE_BASE=""; NODE_FILE=""
+    for b in "https://npmmirror.com/mirrors/node" "https://nodejs.org/dist"; do
+      f="$(curl -fsSL --max-time 25 "$b/latest-v22.x/SHASUMS256.txt" 2>/dev/null \
+            | awk '/linux-x64\.tar\.xz$/ {print $2; exit}')"
+      [ -n "$f" ] && { NODE_BASE="$b"; NODE_FILE="$f"; break; }
+    done
+    [ -n "$NODE_FILE" ] || die "从镜像解析不出 Node 版本（网络问题）。手工装法见 deploy/README.md"
+
+    ok "选中的版本：$NODE_FILE（来自 $NODE_BASE）"
+    curl -fsSL --max-time 300 -o /tmp/node.tar.xz "$NODE_BASE/latest-v22.x/$NODE_FILE" \
+      || die "下载 Node 失败"
+
+    if ! tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 2>/dev/null; then
+      warn "解压失败，可能是没有 xz-utils，正在补装"
+      pkg_install xz-utils || true
+      tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 || die "解压 Node 失败"
+    fi
+    rm -f /tmp/node.tar.xz
+
+    NEW_NODE="$(node_major)"
+    if [ "${NEW_NODE:-0}" -ge 18 ]; then
+      ok "Node 装好了：$(node -v)（$(command -v node)）"
+      case "$(command -v node)" in
+        /usr/local/bin/node) ok "PATH 里优先用的就是新装的那个" ;;
+        *) warn "PATH 里用的是 $(command -v node)，不是新装的 /usr/local/bin/node —— 旧的会盖住它" ;;
+      esac
+    else
+      warn "装完了仍然拿不到 18+ 的 node，检查 PATH（which -a node）"
+    fi
+  fi
+elif [ "${CUR_NODE:-0}" -ne 0 ] && [ "${CUR_NODE:-0}" -lt 18 ]; then
+  warn "现有 Node 是 v$(node -v | sed 's/^v//')，太旧：tools/*.mjs 会抛一个看不懂的 SyntaxError"
+  warn "  想装新的：sudo bash deploy/bootstrap.sh --with-node"
+  warn "  不想装：改在别的机器上跑 node tools/passwd.mjs，把打印出来的三行粘进 deploy/.env"
+else
+  ok "没装 Node（不是必须的）"
+fi
 
 if ! command -v docker >/dev/null 2>&1; then
   warn "没装 Docker，正在装发行版自带的包（比官方脚本在国内更稳）"
