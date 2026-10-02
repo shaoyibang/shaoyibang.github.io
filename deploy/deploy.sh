@@ -36,8 +36,16 @@ docker info >/dev/null 2>&1 || die "拿不到 Docker 权限
   # 或者：sudo -g docker bash deploy/deploy.sh"
 
 say "拉取最新代码"
-git pull --rebase --autostash
-ok "$(git log --oneline -1)"
+if [ -d .git ]; then
+  git pull --rebase --autostash
+  ok "$(git log --oneline -1)"
+else
+  # 文件是直接上传上去的（没有 .git）也照样能部署 —— 静态站和写作后台都不依赖它。
+  # 但同步、自动提交、按提交回滚会没有，所以要说清楚，而不是静默跳过。
+  warn "这里不是 git 仓库（没有 .git）—— 跳过拉取"
+  warn "  站点和写作后台照常工作，但：自动提交、与 GitHub 同步、按提交回滚都用不了"
+  warn "  想要它们：把 .git 目录也传上来，或者在服务器上 clone 一份再重跑"
+fi
 
 say "校验配置"
 ( cd deploy && docker compose config -q ) || die "compose 配置不合法"

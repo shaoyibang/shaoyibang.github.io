@@ -134,9 +134,14 @@ async function save() {
     current = res.slug;
     dirty = false;
     await loadList();
+    /* 把"有没有真的提交"说出来。服务器上没有 git（比如文件是直接上传上去的）
+       时保存仍然会成功，只是历史不前进 —— 不说的话，人会以为已经提交了。 */
+    const commit = res.committed
+      ? "已提交"
+      : "未提交" + (res.commitNote ? "（" + res.commitNote + "）" : "");
     setStatus(`已保存 ${res.slug}.md；` + (res.built?.length
       ? "已重新生成 " + res.built.length + " 个页面"
-      : "页面无需重新生成"), "ok");
+      : "页面无需重新生成") + "；" + commit, "ok");
   } catch (e) {
     setStatus("保存失败：" + e.message, "error");
   }

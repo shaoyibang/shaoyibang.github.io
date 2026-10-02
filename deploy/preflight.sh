@@ -311,7 +311,9 @@ else
       *) pass "origin 是 $ORIGIN" ;;
     esac
   else
-    warn "$SITE_ROOT 还不是 git 仓库（照 deploy/README.md 的第二步把仓库拷过去）"
+    warn "$SITE_ROOT 不是 git 仓库（文件是直接上传上去的？）"
+    warn "  站点和写作后台照常工作，但：自动提交 / 与 GitHub 同步 / 按提交回滚都用不了，"
+    warn "  备份里也不含提交历史。想要它们就把 .git 一并传上来，或在服务器上 clone 一份。"
   fi
   if [ -d "$SITE_ROOT" ] && have stat; then
     OWNER="$(stat -c '%u' "$SITE_ROOT" 2>/dev/null)"

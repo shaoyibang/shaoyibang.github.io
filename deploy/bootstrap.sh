@@ -262,9 +262,22 @@ for f in "$UNIT_SRC"/*.in; do
   ok "$name"
 done
 systemctl daemon-reload
-systemctl enable --now site-sync.timer site-backup.timer >/dev/null 2>&1 || \
-  warn "定时器启用失败，检查：systemctl status site-sync.timer"
-ok "已启用：site-sync.timer（每 10 分钟）、site-backup.timer（每天 04:00）"
+
+# 同步那个定时器只在"这是个 git 仓库"时才有意义。文件是直接上传上去的
+# （没有 .git）情况下如果照装，sync.sh 会每 10 分钟失败一次 —— 而站点本身
+# 一切正常，所以这种失败很容易被忽略很久。宁可不装，并且说清楚。
+if [ -d "$SITE_ROOT/.git" ]; then
+  systemctl enable --now site-sync.timer site-backup.timer >/dev/null 2>&1 || \
+    warn "定时器启用失败，检查：systemctl status site-sync.timer"
+  ok "已启用：site-sync.timer（每 10 分钟）、site-backup.timer（每天 04:00）"
+else
+  systemctl enable --now site-backup.timer >/dev/null 2>&1 || \
+    warn "备份定时器启用失败，检查：systemctl status site-backup.timer"
+  systemctl disable --now site-sync.timer >/dev/null 2>&1 || true
+  ok "已启用：site-backup.timer（每天 04:00）"
+  warn "没有启用 site-sync.timer：$SITE_ROOT 不是 git 仓库，同步脚本每 10 分钟只会失败一次"
+  warn "  想要和 GitHub 同步，就把 .git 目录也传上来（或在服务器上 clone 一份）再重跑本脚本"
+fi
 
 # --------------------------------- 5. GitHub 部署密钥与连通性
 say "GitHub 部署密钥与连通性"
