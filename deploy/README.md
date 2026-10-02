@@ -27,6 +27,7 @@ Internet :443
 | `.env.example` | 配置模板。复制成 `.env` 再填，**`.env` 不进仓库** |
 | `lib.sh` | 脚本共用的小函数（`.env` 取值、彩色输出），被测试直接覆盖 |
 | `bootstrap.sh` | 一次性服务器准备：装依赖、加 swap、建目录、装定时器 |
+| `preflight.sh` | 上线前体检：系统 / 资源 / 端口 / 防火墙 / DNS / 镜像能否拉取 / 凭据是否就位 |
 | `deploy.sh` | 部署 / 更新（幂等，可反复跑） |
 | `backup.sh` | 打一个归档到 `/var/backups/site` |
 | `sync.sh` | 与 GitHub 双向同步，由定时器每 10 分钟跑 |
@@ -107,7 +108,31 @@ sudo bash deploy/bootstrap.sh
 > # 逐个写进 /etc/systemd/system/ 然后 systemctl daemon-reload && systemctl enable --now site-sync.timer site-backup.timer
 > ```
 
-### 5. 首次上线
+### 5. 上线前体检
+
+```bash
+bash deploy/preflight.sh
+```
+
+只读检查，不改系统（唯一会动的是 `docker pull`，约 200 MB；不想下载加 `--skip-pull`）。
+它逐项查：系统与架构、内存/swap/磁盘、系统时间、80/443 是否被占、本机防火墙、
+SELinux、Docker 与 compose、**镜像能不能从你的网络拉下来**、GitHub 连通性、
+域名是否解析到本机公网 IP、仓库属主与凭据是否就位。
+
+**为什么值得先跑**：下面这些失败原因的报错信息都不会指向真正的原因——
+
+| 看到的报错 | 真正的原因 |
+|---|---|
+| 证书签不下来 | 域名没解析过来 / 没备案 / 系统时间没同步 |
+| 容器起不来 | 80 被别的进程占了 |
+| 后台能存文章，但宿主 `git status` 一片红 | `SITE_UID` 填错一位 |
+| `docker pull` 超时 | Docker Hub 从国内不可达，要配镜像加速器 |
+| 登录永远说口令不对 | `.env` 被 `source` 过，哈希里的 `$` 被 shell 展开了 |
+
+输出里 `✓` 是通过、`!` 是警告（多数可以带着走）、`✗` 是阻塞项。
+有 `✗` 就先把它们解决掉再往下走。
+
+### 6. 首次上线
 
 ```bash
 bash deploy/deploy.sh
@@ -439,10 +464,16 @@ node tools/fonts.mjs --check && node tools/build.mjs --check
 node server/admin.test.mjs && node server/login.test.mjs
 CADDY_BIN=/path/to/caddy node deploy/caddyfile.test.mjs
 CADDY_BIN=/path/to/caddy node deploy/stack.test.mjs    # 整条链路：反代 + 生产模式后台
-BASH_BIN=/bin/bash       node deploy/scripts.test.mjs
+BASH_BIN=/bin/bash       node deploy/scripts.test.mjs  # 含 bash -n、envval、备份、systemd 模板
 # 需要浏览器调试端口的两个：
 node server/web.test.mjs
 node tools/verify.mjs
+```
+
+`preflight.sh` 是给服务器跑的，本地验它只要语法检查（`scripts.test.mjs` 里有）：
+
+```bash
+bash -n deploy/*.sh
 ```
 
 `stack.test.mjs` 是最接近真实部署的一个：它把真 Caddy 和真后台接起来，

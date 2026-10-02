@@ -18,6 +18,8 @@ import { tmpdir } from "node:os";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { hashPassword } from "../server/auth.mjs";
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "..");
 
@@ -80,8 +82,12 @@ function bash(script, opts = {}) {
 
 /* ==================================================== 1. lib.sh / envval */
 const TMP = mkdtempSync(join(tmpdir(), "deploy-test-"));
-/* 真实的哈希形状：里面有四个 $，被 shell 求值一次就废了 */
-const REAL_HASH = "scrypt$32768$8$1$9f2c4a1b" + "ab".repeat(28) + "$" + "cd".repeat(64);
+/* 用真的口令工具生成，而不是手写一个"像那么回事"的字符串。
+   理由：envval 一旦截断它，表现是"部署一路绿灯、密码怎么都登不进去" ——
+   所以这里要的是真实的长度与真实的 $ 分布
+   （scrypt$32768$8$1$ + 64 位十六进制盐 + $ + 128 位十六进制密钥）。 */
+const REAL_HASH = await hashPassword("envval-fidelity-check-1234");
+assert(REAL_HASH.length > 150, "参照哈希太短了，测试本身失去意义：" + REAL_HASH.length);
 const ENV_PATH = join(TMP, ".env");
 
 writeFileSync(ENV_PATH, [
@@ -180,6 +186,15 @@ await t("systemd 的 ExecStart 目标在 git 里带可执行位", () => {
     assert(out, `git 里没有这个文件：${rel}`);
     const mode = out.split(/\s+/)[0];
     eq(mode, "100755", `${rel} 在 git 索引里的模式`);
+  }
+});
+
+await t("所有部署脚本通过 bash -n（语法错只有到了服务器上才会暴露）", () => {
+  const files = readdirSync(HERE).filter((f) => f.endsWith(".sh"));
+  assert(files.length >= 5, "找到的脚本太少，可能路径不对：" + files.length);
+  for (const f of files) {
+    const r = spawnSync(BASH, ["-n", join(HERE, f)], { encoding: "utf8" });
+    eq(r.status, 0, `${f} 有语法错误：` + String(r.stderr || "").trim());
   }
 });
 
