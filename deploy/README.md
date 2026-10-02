@@ -58,102 +58,125 @@ Internet :443
 
 下面这个顺序不是随便排的，它绕开了三个"先有鸡还是先有蛋"：
 
-| 干净服务器上没有 | 所以不能 | 改成 |
+| 干净服务器上没有 | 所以不能 | 绕法 |
 | --- | --- | --- |
-| **git** | `git clone` 取代码 | 从你本机 `scp` 拷过去 |
-| **Node** | 在服务器上生成口令哈希 | 在本机生成好，随仓库一起拷 |
-| **能访问 GitHub 的密钥** | 直接推送 | 先 `bootstrap.sh` 生成 Deploy key，你加到 GitHub |
+| **git** | `git clone` 取代码 | 先装它（一条命令，见第 2 步） |
+| **Node** | 在服务器上生成口令哈希 | 在**本机**生成好，把三行粘贴过去 |
+| **能访问 GitHub 的密钥** | 直接推送 | 先生成密钥并加到 GitHub（第 2 步） |
 
-### 1. 在你自己的机器上准备好配置
+### 1. 生成后台口令（在你自己的机器上）
 
-在**本机**的仓库目录里（这一步用本机的 Node）：
+服务器上不装 Node，所以这一步在**本机**做。在仓库目录里：
 
 ```powershell
-cp deploy/.env.example deploy/.env
-# 编辑 deploy/.env，先只填这两个：
-#   SITE_DOMAIN=你的域名
-#   ACME_EMAIL=你的邮箱
-node tools/passwd.mjs --out deploy/.env
+node tools/passwd.mjs
 ```
 
-`passwd.mjs` 会交互式地问两遍口令（不回显），把 `ADMIN_USER` /
-`ADMIN_PASSWORD_HASH` / `SESSION_SECRET` 三行写进 `deploy/.env`。
+它会交互式地问两遍口令（不回显），然后**打印**三行：
 
-`SITE_ROOT` / `SITE_UID` / `SITE_GID` 先留着 —— 那三个要到了服务器上才知道。
-`deploy/.env` 已经在 `.gitignore` 里，不会被提交。
+```
+ADMIN_USER=...
+ADMIN_PASSWORD_HASH=scrypt$32768$8$1$...
+SESSION_SECRET=...
+```
+
+先复制下来，第 4 步要粘到服务器上。
 
 > 口令至少 10 位。这个后台是开在公网上的，短口令等于没有。
 
-### 2. 把仓库拷到服务器
-
-**这里不要用 `git clone`**：那台机器上还没有 git，国内到 `github.com:443` 大概率
-也不通。先拷过去，同步的事后面交给定时器。
+### 2. 服务器上装 git，并配好一把密钥
 
 ```bash
-# 先在服务器上建好目录（用你的登录账号）
-ssh 用户名@服务器IP 'sudo mkdir -p /srv && sudo chown $USER:$USER /srv'
+# 按发行版选一条
+sudo apt update && sudo apt install -y git        # Debian / Ubuntu
+sudo dnf install -y git                           # CentOS / RHEL / Rocky / Alma
+sudo apk add git                                  # Alpine
 ```
 
-```powershell
-# 在 Windows 本机执行（系统自带 OpenSSH 就有 scp）
-cd D:\workplace\dsh\personal-web
-scp -r . 用户名@服务器IP:/srv/site
+> **装得慢或连不上**（国内访问官方源常见），把源换成阿里云再装：
+>
+> ```bash
+> # Ubuntu 24.04 及以后
+> sudo sed -i 's|//archive.ubuntu.com|//mirrors.aliyun.com|g; s|//security.ubuntu.com|//mirrors.aliyun.com|g' /etc/apt/sources.list.d/ubuntu.sources
+> # Ubuntu 22.04 及更早
+> sudo sed -i 's|//archive.ubuntu.com|//mirrors.aliyun.com|g; s|//security.ubuntu.com|//mirrors.aliyun.com|g' /etc/apt/sources.list
+> sudo apt update
+> ```
+
+**服务器需要它自己的密钥。** 不要把你本机的个人私钥拷上来 —— 那等于把整个
+GitHub 账号放到服务器上。这里生成的这一对只给这台机器用：
+
+```bash
+ssh-keygen -t ed25519 -N "" -C "site-sync@$(hostname)"
+cat ~/.ssh/id_ed25519.pub
 ```
 
-**连 `.git` 一起拷过去** —— 提交历史要保住，服务器上的自动提交和同步都靠它。
+把那行公钥加到 GitHub → 仓库 → Settings → **Deploy keys** → Add deploy key，
+并**勾上 Allow write access**（不勾就只能拉、不能推）。
 
-> 这些文件在仓库里就是 LF（`.gitattributes` 里 `* text=auto eol=lf`），
-> `scp` 逐字节复制不会改。如果中间经过了别的传输方式（压缩解压、某些编辑器），
-> 到服务器上跑一下 `bash -n deploy/*.sh` 确认没被改坏 —— CRLF 的 shell 脚本
-> 在 Linux 上会以一个很难懂的报错失败。
+> 无口令是必须的：systemd 定时器在无人值守时推送，没有地方输口令。
+> 用 Deploy key 而不是个人密钥，是为了把权限限制在这一个仓库上。
 
-### 3. 在服务器上补完配置
+### 3. 克隆仓库（走 SSH over 443）
+
+国内到 `github.com:443` 常常不通，但 `ssh.github.com:443` 通。直接把它写进
+地址里，**一条命令，不需要改任何 ssh 配置**：
+
+```bash
+sudo mkdir -p /srv/site && sudo chown "$USER:$USER" /srv/site
+git clone ssh://git@ssh.github.com:443/shaoyibang/shaoyibang.github.io.git /srv/site
+cd /srv/site
+```
+
+这个地址把主机和端口都写在 URL 里了，所以 `origin` 本身就是可用的，
+后面 `bootstrap.sh` 不会再动它。
+
+> **GitHub 完全不可达？** 那就换 scp，见「六、GitHub 同步」一节的最后一段。
+
+### 4. 填配置
 
 ```bash
 cd /srv/site
+cp deploy/.env.example deploy/.env
+
+# 自动填这三个（其余的要手填）
 sed -i "s|^SITE_ROOT=.*|SITE_ROOT=/srv/site|; \
         s|^SITE_UID=.*|SITE_UID=$(id -u)|; \
         s|^SITE_GID=.*|SITE_GID=$(id -g)|" deploy/.env
-grep -E '^SITE_(ROOT|UID|GID)=' deploy/.env    # 确认一下
+
+nano deploy/.env      # 填 SITE_DOMAIN、ACME_EMAIL，并把第 1 步打印的三行凭据粘进去
 chmod 600 deploy/.env
+grep -cE '^(SITE_DOMAIN|ACME_EMAIL|SITE_ROOT|SITE_UID|SITE_GID|ADMIN_USER|ADMIN_PASSWORD_HASH|SESSION_SECRET)=.+' deploy/.env
+# ↑ 应该输出 8；少于 8 说明还有没填的
 ```
 
-### 4. 跑准备脚本
+> 粘贴不会弄坏哈希。那个"`$` 被 shell 展开"的坑只在 `source .env` 时才会踩到，
+> 往文件里粘贴是逐字写入的。
+
+### 5. 跑准备脚本
 
 ```bash
 sudo bash deploy/bootstrap.sh
 ```
 
-它会装 git / Docker / compose / openssh-client，加 2G swap，把 `/srv/site` 属主
-调成 `SITE_UID:SITE_GID`，安装两个 systemd 定时器，检查 GitHub 连通性，
-**并且如果这台机器上还没有 SSH 密钥就生成一对**，然后把公钥打印出来。
+它会装 Docker / compose / openssh-client（git 第 2 步已经装好了），加 2G swap，
+把 `/srv/site` 属主调成 `SITE_UID:SITE_GID`，安装两个 systemd 定时器，
+检查 GitHub 连通性，确认 origin 是 SSH（不是 HTTPS，否则推送会走被阻断的 443）。
 
-> **需要你手动做一件事**：把打印出来的那个公钥加到
-> GitHub → 仓库 → Settings → **Deploy keys** → Add deploy key，
-> 并**勾上 Allow write access**（不勾就只能拉、不能推）。
->
-> 为什么用 Deploy key 而不是把你本机的个人私钥拷上来：前者的权限只限这一个
-> 仓库，服务器万一出事，损失可控。密钥是无口令的 —— 必须如此，systemd 定时器
-> 在无人值守时推送，没有地方输口令。
->
-> 加完验证：`sudo -u "#$(id -u)" ssh -T git@github.com`（应该看到欢迎语）
+密钥第 2 步已经生成好了，所以它会直接复用它，不会重复生成。
 
-> **不想让它自动改系统？** 这一步可以完全手工做，照下面来，然后跳到第 5 步体检：
+> 加完 Deploy key 之后验证一下：`ssh -T git@github.com`（应该看到欢迎语）
+
+> **不想让它自动改系统？** 这一步可以完全手工做，照下面来，然后跳到第 6 步体检：
 >
 > ```bash
-> sudo apt-get update && sudo apt-get install -y git docker.io docker-compose-v2 openssh-client
+> sudo apt-get update && sudo apt-get install -y docker.io docker-compose-v2
 > sudo usermod -aG docker "$USER"      # 之后重新登录
 > # 2G 内存建议加 swap
 > sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile
 > sudo mkswap /swapfile && sudo swapon /swapfile
 > echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 > echo 'vm.swappiness=10' | sudo tee /etc/sysctl.d/99-sean-site.conf
-> # Deploy key（无口令，必须如此：定时器无人值守，输不了口令）
-> ssh-keygen -t ed25519 -N "" -C "site-sync@$(hostname)"
-> cat ~/.ssh/id_ed25519.pub       # 加到 GitHub 的 Deploy keys，勾 Allow write access
-> # github.com:443 国内常被阻断，改道 SSH over 443
-> printf '\nHost github.com\n  HostName ssh.github.com\n  Port 443\n  User git\n' >> ~/.ssh/config
-> chmod 600 ~/.ssh/config
 > # 定时器（把占位符换成真实值）
 > sed -e 's|@SITE_ROOT@|/srv/site|g' -e 's|@SITE_UID@|'"$(id -u)"'|g' \
 >     -e 's|@SITE_GID@|'"$(id -g)"'|g' -e 's|@BACKUP_DIR@|/var/backups/site|g' \
@@ -161,7 +184,7 @@ sudo bash deploy/bootstrap.sh
 > # 逐个写进 /etc/systemd/system/ 然后 systemctl daemon-reload && systemctl enable --now site-sync.timer site-backup.timer
 > ```
 
-### 5. 上线前体检
+### 6. 上线前体检
 
 ```bash
 bash deploy/preflight.sh
@@ -185,7 +208,7 @@ SELinux、Docker 与 compose、**镜像能不能从你的网络拉下来**、Git
 输出里 `✓` 是通过、`!` 是警告（多数可以带着走）、`✗` 是阻塞项。
 有 `✗` 就先把它们解决掉再往下走。
 
-### 6. 首次上线
+### 7. 首次上线
 
 ```bash
 bash deploy/deploy.sh
@@ -428,6 +451,34 @@ ssh -T git@github.com     # 期待：Hi shaoyibang! You've successfully authenti
    ```
 2. **手工把仓库搬走**：`git bundle create /tmp/repo.bundle --all`，scp 回本机再 push。
 3. **接受只有服务器有最新内容**：备份里的归档已经包含全部文件（只是没有提交历史）。
+
+### 备选：不走 GitHub，直接从本机拷（scp）
+
+如果 GitHub 从服务器完全不可达、而你又不想折腾镜像仓库，可以跳过"装 git → 配密钥
+→ clone"这一整套，直接从你这台 Windows 把仓库拷过去。适合只想先把站点跑起来、
+同步的事以后再说的情况。
+
+```bash
+# 先在服务器上建好目录（用你的登录账号）
+ssh 用户名@服务器IP 'sudo mkdir -p /srv && sudo chown $USER:$USER /srv'
+```
+
+```powershell
+# 在 Windows 本机执行（系统自带 OpenSSH 就有 scp）
+cd D:\workplace\dsh\personal-web
+scp -r . 用户名@服务器IP:/srv/site
+```
+
+**连 `.git` 一起拷过去** —— 提交历史要保住，服务器上的自动提交靠它。
+
+拷过去之后照常走第 4 步（填配置）。两个要注意的地方：
+
+- **origin 会是 HTTPS**（本机就是这么克隆的），推送会走被阻断的 `github.com:443`。
+  第 5 步的 `bootstrap.sh` 会自动把它改成 SSH 地址；`preflight.sh` 也会检查这一条。
+- **确保没被改成 CRLF**：这些文件在仓库里就是 LF，`scp` 逐字节复制不会改。
+  如果中间经过别的传输方式（压缩解压、某些编辑器），到服务器上跑
+  `bash -n deploy/*.sh` 确认 —— CRLF 的 shell 脚本在 Linux 上会以一个很难懂的
+  报错失败。
 
 ---
 
