@@ -163,6 +163,26 @@ await t("所有 systemd 模板的占位符都在 bootstrap 的替换范围内", 
   }
 });
 
+await t("systemd 的 ExecStart 目标在 git 里带可执行位", () => {
+  /* systemd 的 ExecStart 走 execve，需要可执行位；缺了它单元会以
+     "Permission denied" 失败，而 Windows 上的工作区完全看不出这个差别 ——
+     所以要问 git 索引，别问文件系统。 */
+  const dir = join(HERE, "systemd");
+  const execs = new Set();
+  for (const f of readdirSync(dir).filter((x) => x.endsWith(".in"))) {
+    const text = readFileSync(join(dir, f), "utf8");
+    for (const m of text.matchAll(/^ExecStart=@SITE_ROOT@\/(.+)$/gm)) execs.add(m[1].trim());
+  }
+  assert(execs.size > 0, "模板里没找到 ExecStart");
+
+  for (const rel of execs) {
+    const out = execFileSync("git", ["ls-files", "-s", "--", rel], { cwd: ROOT, encoding: "utf8" }).trim();
+    assert(out, `git 里没有这个文件：${rel}`);
+    const mode = out.split(/\s+/)[0];
+    eq(mode, "100755", `${rel} 在 git 索引里的模式`);
+  }
+});
+
 /* ================================================= 3. backup.sh 真跑一遍 */
 const BK_DIR = join(TMP, "backups");
 const siteP = posix(ROOT);
